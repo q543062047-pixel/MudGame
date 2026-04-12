@@ -1,0 +1,82 @@
+/* ===== 全局样式 · 江湖志 ===== */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --font-serif: 'Noto Serif SC', 'STSong', 'SimSun', serif;
+  --font-display: 'ZCOOL XiaoWei', 'STKaiti', cursive;
+
+  /* 色彩体系 */
+  --color-bg:        #0d0a06;
+  --color-bg-mid:    #110d07;
+  --color-bg-panel:  #08050100;
+  --color-surface:   rgba(20, 14, 4, 0.95);
+  --color-border:    #3a2e1a;
+  --color-border-dim:#2a1e0e;
+
+  --color-gold:      #c9954a;
+  --color-gold-light:#f0c870;
+  --color-gold-dim:  #8a6030;
+  --color-gold-mute: #5a3e1a;
+
+  --color-text:      #e8d5a3;
+  --color-text-dim:  #d4b87a;
+  --color-text-mute: #a08050;
+  --color-text-faint:#6a5030;
+
+  --color-accent:    #c04030;
+  --color-info:      #8ab8c8;
+
+  /* 动画 */
+  --transition: 0.2s ease;
+
+  /* 尺寸 */
+  --sidebar-width: 190px;
+  --header-height: 52px;
+}
+
+html, body {
+  height: 100%;
+  font-family: var(--font-serif);
+  background: var(--color-bg);
+  color: var(--color-text);
+  overflow: hidden;
+}
+
+#app {
+  height: 100%;
+}
+
+/* 滚动条 */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--color-gold-mute); }
+
+/* 通用按钮基础样式 */
+button { cursor: pointer; font-family: var(--font-serif); }
+button:disabled { cursor: not-allowed; opacity: 0.4; }
+input, textarea { font-family: var(--font-serif); }
+
+/* 页面切换动画 */
+.page-enter-active,
+.page-leave-active {
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+.page-enter-from { opacity: 0; transform: translateY(10px); }
+.page-leave-to   { opacity: 0; transform: translateY(-10px); }
+
+/* 消息进入动画 */
+.msg-enter-active { transition: opacity 0.5s ease, transform 0.4s ease; }
+.msg-enter-from   { opacity: 0; transform: translateX(-8px); }
+
+/* 选项进入动画 */
+.choice-enter-active {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+.choice-enter-from { opacity: 0; transform: translateY(6px); }
+.choice-move { transition: transform 0.3s ease; }
