@@ -1,0 +1,404 @@
+{
+  "nodes": {
+    "start": {
+      "id": "start",
+      "atmosphere": "peaceful",
+      "text": [
+        "洪武二十年，江南烟雨。",
+        "你是青云门新晋弟子叶云舟，自幼习武，志在江湖。今日恩师命你下山历练，临行前递来一封密信，叮嘱你务必送至苍梧城「醉仙楼」，交与一位自称「无名客」的人。",
+        "青云山的晨雾尚未散尽，山道蜿蜒。你背负行囊，踏上了这段未知的旅途。"
+      ],
+      "choices": [
+        {
+          "text": "【整顿行装，即刻下山】",
+          "next": "road_start"
+        },
+        {
+          "text": "【返回师父房间，再问一句】",
+          "next": "ask_master"
+        }
+      ]
+    },
+    "ask_master": {
+      "id": "ask_master",
+      "atmosphere": "peaceful",
+      "text": [
+        "你推开师父的木门，他正背对着你，望向窗外云海。",
+        "「师父，此行凶险否？」",
+        "半晌，他缓缓开口：「江湖从无坦途。但记住——遇事莫冲动，留三分余地，方能全身而退。」",
+        "他转过身，将一枚玉佩塞入你掌中，「苍梧城若有危急，凭此物可去城东「百草堂」求助。」",
+        "玉佩温润，背面刻着一个「医」字。"
+      ],
+      "effects": [
+        { "type": "addItem", "target": "jade_pendant", "value": 1 }
+      ],
+      "choices": [
+        {
+          "text": "【谢过师父，下山去】",
+          "next": "road_start"
+        }
+      ]
+    },
+    "road_start": {
+      "id": "road_start",
+      "atmosphere": "normal",
+      "text": [
+        "山道崎岖，走了约摸两个时辰，你来到山脚官道。",
+        "前方岔路，一条向东通往苍梧城，另一条向西，隐约可见炊烟——似乎是个村落。",
+        "正当你踌躇之际，忽然听见林中传来一阵呼救声，夹杂着刀剑碰撞的脆响。"
+      ],
+      "choices": [
+        {
+          "text": "【循声入林，前去查看】",
+          "next": "forest_rescue"
+        },
+        {
+          "text": "【送信要紧，不作理会，径直向东】",
+          "next": "city_gate"
+        },
+        {
+          "text": "【悄悄靠近，先观察情况】",
+          "next": "forest_observe"
+        }
+      ]
+    },
+    "forest_observe": {
+      "id": "forest_observe",
+      "atmosphere": "tense",
+      "text": [
+        "你屏息凝神，借着树木掩护悄悄靠近。",
+        "透过枝叶间隙，你看见：三名黑衣蒙面人将一名白衣书生逼至树下，地上散落着几册书卷。",
+        "「把东西交出来！」为首的蒙面人厉声道。",
+        "书生面色苍白，却倔强道：「此物关乎万千人性命，休想从我手中夺走！」",
+        "你看出书生武功平平，只怕支撑不了多久。蒙面人似乎不是泛泛之辈。"
+      ],
+      "choices": [
+        {
+          "text": "【挺身而出，三人而已】",
+          "next": "forest_rescue"
+        },
+        {
+          "text": "【暗中帮助——抛出石子扰乱阵脚】",
+          "next": "forest_distract"
+        },
+        {
+          "text": "【此事非己之事，悄悄离开】",
+          "next": "city_gate"
+        }
+      ]
+    },
+    "forest_distract": {
+      "id": "forest_distract",
+      "atmosphere": "tense",
+      "text": [
+        "你悄悄拾起几颗石子，瞄准远处树丛奋力掷出。",
+        "「咔嚓——」枝叶哗然，三名蒙面人齐齐回头。",
+        "「有埋伏！」",
+        "趁着这一瞬，书生拔腿狂奔，竟真的从包围中逃了出来。",
+        "蒙面人骂了一声，追出数步，似乎顾忌有人埋伏，终是撤走了。",
+        "书生奔至你藏身之处，气喘吁吁，发现了你，愣了一下，随即拱手：「多谢侠士！在下方元白，敢问恩人姓名？」"
+      ],
+      "effects": [
+        { "type": "changeReputation", "value": 5 }
+      ],
+      "choices": [
+        {
+          "text": "【自报家门，与他攀谈】",
+          "next": "meet_scholar"
+        },
+        {
+          "text": "【摆手示意无妨，问他遭遇】",
+          "next": "meet_scholar"
+        }
+      ]
+    },
+    "forest_rescue": {
+      "id": "forest_rescue",
+      "atmosphere": "battle",
+      "text": [
+        "你大喝一声「住手！」，踏入林间空地。",
+        "三名蒙面人转过身，为首者冷笑：「哪里来的毛头小子，找死？」",
+        "话音未落，他已抢先出手——一道黑影挟着劲风朝你扑来！"
+      ],
+      "battle": {
+        "enemyId": "bandit_leader",
+        "canFlee": false,
+        "winNext": "rescue_win",
+        "loseNext": "rescue_lose"
+      }
+    },
+    "rescue_win": {
+      "id": "rescue_win",
+      "atmosphere": "peaceful",
+      "text": [
+        "三招之内，你将为首的蒙面人逼退。其余二人见势不妙，架起同伴仓皇而逃。",
+        "白衣书生跌跌撞撞走来，神情激动：「壮士神武！在下方元白，书生一枚，今日幸得相救，没齿难忘。」",
+        "他从怀中掏出一本泛黄的册子，「此乃某地藏宝图的线索残本，那伙人正是为此而来。壮士若不嫌弃，此物赠予你，算是报答。」"
+      ],
+      "effects": [
+        { "type": "addItem", "target": "treasure_clue", "value": 1 },
+        { "type": "changeReputation", "value": 10 },
+        { "type": "changeGold", "value": 20 }
+      ],
+      "choices": [
+        {
+          "text": "【收下，与他同行一段】",
+          "next": "meet_scholar"
+        },
+        {
+          "text": "【婉拒，独自赶路】",
+          "next": "city_gate"
+        }
+      ]
+    },
+    "rescue_lose": {
+      "id": "rescue_lose",
+      "atmosphere": "tense",
+      "text": [
+        "你力战三人，终究寡不敌众，被击飞在地。",
+        "胸口一阵剧痛，血气翻涌。蒙面人踩着你的胸口，冷笑：「小子，算你命大，今日留你一条狗命。」",
+        "他们拿走了书生怀中之物，扬长而去。",
+        "书生扶起你，神色愧疚：「对不住，累你受伤了……」他从包袱中取出一颗红色药丸塞入你手中，「伤筋动骨，需好好将养。」"
+      ],
+      "effects": [
+        { "type": "changeHp", "value": -20 },
+        { "type": "addItem", "target": "healing_pill", "value": 1 }
+      ],
+      "choices": [
+        {
+          "text": "【服下药丸，继续赶路】",
+          "next": "city_gate"
+        }
+      ]
+    },
+    "meet_scholar": {
+      "id": "meet_scholar",
+      "atmosphere": "peaceful",
+      "text": [
+        "方元白是个颇有趣味的人，走在官道上，他滔滔不绝地讲起苍梧城的见闻：",
+        "「城中近日不太平——霸刀帮趁着太守换届，将各处茶馆、商铺的保护费翻了一倍，百姓苦不堪言。」",
+        "他压低声音：「还有传言说，醉仙楼最近来了个神秘人，无人知晓其来历，却似乎与霸刀帮颇有龌龊……」",
+        "你心中微微一动——醉仙楼，正是你此行的目的地。"
+      ],
+      "choices": [
+        {
+          "text": "【问他醉仙楼之事】",
+          "next": "city_gate"
+        },
+        {
+          "text": "【打个哈哈，岔开话题】",
+          "next": "city_gate"
+        }
+      ]
+    },
+    "city_gate": {
+      "id": "city_gate",
+      "atmosphere": "normal",
+      "text": [
+        "苍梧城，到了。",
+        "城门前人来人往，小贩的吆喝声、孩童的嬉笑声混成一片。然而城楼上，几个手持长刀的壮汉目光阴鸷地扫视着每一个入城者——那腰牌上的图案，是一把交叉的刀，霸刀帮的标志。",
+        "「进城一人，收入城费十文。」一个大汉拦住了你。"
+      ],
+      "choices": [
+        {
+          "text": "【掏钱入城，十文而已】",
+          "next": "city_inside",
+          "effects": [{ "type": "changeGold", "value": -10 }]
+        },
+        {
+          "text": "【据理力争：从未有此规矩！】",
+          "next": "city_argue"
+        },
+        {
+          "text": "【亮出青云门身份】",
+          "next": "city_identity"
+        }
+      ]
+    },
+    "city_argue": {
+      "id": "city_argue",
+      "atmosphere": "tense",
+      "text": [
+        "「哪里来的规矩？苍梧城建城百年，从未有过入城费！」",
+        "大汉脸色一沉，手按刀柄：「小子找揍？」",
+        "周围百姓纷纷躲避，几个摊贩缩着脑袋，不敢出声。",
+        "这时，旁边一个卖糖葫芦的老汉轻声扯了扯你的衣袖：「年轻人，莫惹事，十文钱换个太平，值得。」",
+        "你权衡片刻……"
+      ],
+      "choices": [
+        {
+          "text": "【听老汉劝，忍气吞声交钱】",
+          "next": "city_inside",
+          "effects": [{ "type": "changeGold", "value": -10 }]
+        },
+        {
+          "text": "【不交！看他能奈我何】",
+          "next": "city_fight_guard"
+        }
+      ]
+    },
+    "city_identity": {
+      "id": "city_identity",
+      "atmosphere": "normal",
+      "text": [
+        "你拱手道：「在下青云门弟子叶云舟，奉师命来此。」",
+        "大汉眯起眼睛，打量了你片刻，忽然冷笑：「青云门？没听说过。」",
+        "旁边一个小头目却悄悄拉了他一把，在他耳边低语几句。大汉脸色变了变，摆摆手：「算了，过去吧。」",
+        "你不知道青云门的名号究竟起了什么作用，但顺利入城已是幸事。"
+      ],
+      "autoNext": "city_inside"
+    },
+    "city_fight_guard": {
+      "id": "city_fight_guard",
+      "atmosphere": "battle",
+      "text": [
+        "大汉勃然大怒，抽刀便砍！",
+        "你侧身躲过，心知今日若不给他们一个教训，此后更是无法无天。"
+      ],
+      "battle": {
+        "enemyId": "city_guard_bully",
+        "canFlee": true,
+        "winNext": "city_fight_win",
+        "loseNext": "city_inside"
+      }
+    },
+    "city_fight_win": {
+      "id": "city_fight_win",
+      "atmosphere": "peaceful",
+      "text": [
+        "几招之内，大汉被你打翻在地，长刀脱手。",
+        "围观的百姓先是一愣，随即爆发出一阵喝彩声。",
+        "「打得好！」「这位侠士真是好身手！」",
+        "霸刀帮的人灰溜溜地把同伴拖走，临去还撂下一句狠话：「小子，你等着！」",
+        "你昂首入城，心中畅快。城中一家茶馆的老板悄悄走来，塞给你一把铜钱：「侠士，这是我们几家商户的一点心意，不成敬意。」"
+      ],
+      "effects": [
+        { "type": "changeReputation", "value": 15 },
+        { "type": "changeGold", "value": 30 }
+      ],
+      "autoNext": "city_inside"
+    },
+    "city_inside": {
+      "id": "city_inside",
+      "atmosphere": "normal",
+      "text": [
+        "苍梧城内，比城外热闹许多。青石板路两侧，药铺、铁匠铺、当铺鳞次栉比。",
+        "你向一个路人打听，得知醉仙楼在城中主街尽头，是本城最大的酒楼。",
+        "此外，城东的「百草堂」、城西的「书香阁」也是有名的去处。",
+        "你该先去哪里？"
+      ],
+      "choices": [
+        {
+          "text": "【径直前往醉仙楼，完成师命】",
+          "next": "tavern_arrive"
+        },
+        {
+          "text": "【先去百草堂补充药品】",
+          "next": "herbal_shop"
+        },
+        {
+          "text": "【在城中逛逛，打听消息】",
+          "next": "city_explore"
+        }
+      ]
+    },
+    "herbal_shop": {
+      "id": "herbal_shop",
+      "atmosphere": "peaceful",
+      "text": [
+        "百草堂药香四溢，一位须发皆白的老大夫正在把脉问诊。",
+        "见你进来，学徒迎上：「客官，要抓药还是购丹？」",
+        "货架上陈列着各色丹药——「愈伤丹」（恢复50点气血，售价50两）、「聚气丸」（恢复40点内力，售价40两）。",
+        "你身上盘缠有限，需要斟酌。"
+      ],
+      "choices": [
+        {
+          "text": "【购买愈伤丹（50两）】",
+          "next": "city_inside",
+          "condition": { "type": "stat", "target": "gold", "value": 50, "operator": ">=" },
+          "effects": [
+            { "type": "changeGold", "value": -50 },
+            { "type": "addItem", "target": "healing_pill_2", "value": 1 }
+          ]
+        },
+        {
+          "text": "【购买聚气丸（40两）】",
+          "next": "city_inside",
+          "condition": { "type": "stat", "target": "gold", "value": 40, "operator": ">=" },
+          "effects": [
+            { "type": "changeGold", "value": -40 },
+            { "type": "addItem", "target": "mp_pill", "value": 1 }
+          ]
+        },
+        {
+          "text": "【只是随便看看，告辞】",
+          "next": "city_inside"
+        }
+      ]
+    },
+    "city_explore": {
+      "id": "city_explore",
+      "atmosphere": "normal",
+      "text": [
+        "你在城中漫步，耳边时时传来关于霸刀帮的抱怨。",
+        "在一处茶摊，你凑巧听到两个商人压低声音交谈：",
+        "「你听说了吗，醉仙楼来了个蒙面人，据说武功高强得很——昨夜霸刀帮派了十几个人去找他麻烦，结果全被打出来了。」",
+        "「他是什么来头？」",
+        "「谁知道呢，自称无名，也不知是哪个门派的……」",
+        "你心中有数，此人极有可能就是师父信中所提的「无名客」。看来，此行远比你想象的复杂。"
+      ],
+      "effects": [
+        { "type": "setFlag", "flag": "know_wuming" }
+      ],
+      "choices": [
+        {
+          "text": "【消息已探，前往醉仙楼】",
+          "next": "tavern_arrive"
+        }
+      ]
+    },
+    "tavern_arrive": {
+      "id": "tavern_arrive",
+      "atmosphere": "mystery",
+      "text": [
+        "醉仙楼，三层飞檐，朱漆大门，匾额上四个大字龙飞凤舞，远近闻名。",
+        "楼内觥筹交错，说书先生正在台上绘声绘色，台下食客喝彩声不断。",
+        "你向伙计打听「无名客」，他神色微变，压低声音道：「三楼雅间，客官请自便，但他……不好打扰。」",
+        "你踏上楼梯，一步一步，心跳渐渐加快。",
+        "推开雅间的门——",
+        "窗边坐着一个黑衣人，半张脸隐在阴影里，手边放着一壶未开封的酒。他甚至没有回头，只是淡淡开口：",
+        "「来了。坐吧，叶云舟。」"
+      ],
+      "choices": [
+        {
+          "text": "【镇定入座，取出密信递去】",
+          "next": "chapter_end"
+        },
+        {
+          "text": "【戒备地问：你怎知我名字？】",
+          "next": "chapter_end"
+        }
+      ]
+    },
+    "chapter_end": {
+      "id": "chapter_end",
+      "atmosphere": "mystery",
+      "text": [
+        "黑衣人接过密信，指尖轻叩桌面。良久，他将信折好，收入袖中。",
+        "「你师父说，你是个可造之材。」他终于转过头，你这才看清他的脸——年约四旬，眼神深邃，嘴角带着一丝说不清道不明的笑意。",
+        "「江湖不太平，苍梧城更是风雨欲来。」他站起身，走到窗边，俯瞰城中熙攘，「你愿不愿意，留在这里……帮我做一件事？」",
+        "窗外，夕阳将苍梧城染成一片金红。",
+        "故事，就此展开。",
+        "━━━━━━━━━━━━━━━━",
+        "第一章「问剑」完",
+        "━━━━━━━━━━━━━━━━"
+      ],
+      "choices": [
+        {
+          "text": "【重新开始】",
+          "next": "start"
+        }
+      ]
+    }
+  }
+}

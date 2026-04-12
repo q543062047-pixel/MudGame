@@ -1,0 +1,40 @@
+{
+  "jade_pendant": {
+    "id": "jade_pendant",
+    "name": "师父赠玉",
+    "type": "misc",
+    "description": "师父临别所赠，百草堂暗号，危急时可持此求助。",
+    "quantity": 1
+  },
+  "healing_pill": {
+    "id": "healing_pill",
+    "name": "红心丸",
+    "type": "medicine",
+    "description": "书生所赠的红色药丸，服下后可恢复30点气血。",
+    "effect": { "hp": 30 },
+    "quantity": 1
+  },
+  "healing_pill_2": {
+    "id": "healing_pill_2",
+    "name": "愈伤丹",
+    "type": "medicine",
+    "description": "百草堂出品，服下后可恢复50点气血。",
+    "effect": { "hp": 50 },
+    "quantity": 1
+  },
+  "mp_pill": {
+    "id": "mp_pill",
+    "name": "聚气丸",
+    "type": "medicine",
+    "description": "百草堂出品，服下后可恢复40点内力。",
+    "effect": { "mp": 40 },
+    "quantity": 1
+  },
+  "treasure_clue": {
+    "id": "treasure_clue",
+    "name": "残卷·藏宝图线索",
+    "type": "misc",
+    "description": "方元白所赠，记录着某处藏宝的蛛丝马迹，字迹模糊，尚需细细研读。",
+    "quantity": 1
+  }
+}

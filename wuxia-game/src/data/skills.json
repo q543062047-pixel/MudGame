@@ -1,0 +1,23 @@
+{
+  "basic_strike": {
+    "id": "basic_strike",
+    "name": "青云剑法·基础式",
+    "damage": 20,
+    "mpCost": 0,
+    "description": "青云门入门剑法，简洁有力，攻守兼备。"
+  },
+  "cloud_slash": {
+    "id": "cloud_slash",
+    "name": "云破剑",
+    "damage": 35,
+    "mpCost": 20,
+    "description": "以内力灌注剑身，一剑劈出，气劲如云破日出，锋锐无匹。"
+  },
+  "wind_step": {
+    "id": "wind_step",
+    "name": "踏风步",
+    "damage": 15,
+    "mpCost": 15,
+    "description": "身法奇诡，借助步法绕至敌后，以迅雷之势攻其要害。"
+  }
+}

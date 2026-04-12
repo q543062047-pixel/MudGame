@@ -1,0 +1,57 @@
+{
+  "bandit_leader": {
+    "id": "bandit_leader",
+    "name": "蒙面人",
+    "title": "黑风三煞·首煞",
+    "hp": 60,
+    "maxHp": 60,
+    "mp": 20,
+    "attack": 15,
+    "defense": 8,
+    "speed": 12,
+    "description": "黑衣蒙面，身手敏捷，出刀狠辣，似乎接受过专业训练。",
+    "skills": [
+      {
+        "id": "slash",
+        "name": "横刀斩",
+        "damage": 18,
+        "mpCost": 0,
+        "description": "横向一刀，力道十足。"
+      },
+      {
+        "id": "dark_stab",
+        "name": "暗影刺",
+        "damage": 25,
+        "mpCost": 10,
+        "description": "借助身形闪动，突然贴近刺出。"
+      }
+    ],
+    "loot": [
+      { "itemId": "healing_pill", "chance": 0.3, "quantity": 1 }
+    ]
+  },
+  "city_guard_bully": {
+    "id": "city_guard_bully",
+    "name": "霸刀帮打手",
+    "title": "城门恶霸",
+    "hp": 45,
+    "maxHp": 45,
+    "mp": 10,
+    "attack": 12,
+    "defense": 5,
+    "speed": 8,
+    "description": "仗着霸刀帮的势力在城门横行，刀法粗糙，但力气不小。",
+    "skills": [
+      {
+        "id": "heavy_slash",
+        "name": "蛮力劈砍",
+        "damage": 16,
+        "mpCost": 0,
+        "description": "不讲技巧的粗野一刀。"
+      }
+    ],
+    "loot": [
+      { "itemId": "healing_pill", "chance": 0.2, "quantity": 1 }
+    ]
+  }
+}
