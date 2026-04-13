@@ -55,9 +55,7 @@ export function useSaveSlots() {
         character: { ...playerStore.character },
         currentNodeId: gameStore.currentNodeId,
         flags: { ...gameStore.flags },
-        gameTime: gameStore.gameDay,
-        playerX: worldStore.playerX,
-        playerY: worldStore.playerY
+        gameTime: gameStore.gameDay
       }
       
       localStorage.setItem(`${SAVE_KEY_PREFIX}${slotId}`, JSON.stringify(saveData))
@@ -84,9 +82,9 @@ export function useSaveSlots() {
       gameStore.gameDay = data.gameTime
       gameStore.setPhase('story')
       
-      // 恢复地图位置
-      worldStore.map.playerX = data.playerX
-      worldStore.map.playerY = data.playerY
+      // 恢复地图位置（节点式地图）
+      // 使用 teleportTo 方法而不是直接赋值
+      worldStore.teleportTo(data.currentNodeId)
       
       return true
     } catch (e) {

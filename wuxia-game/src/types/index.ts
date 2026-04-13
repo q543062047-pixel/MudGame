@@ -182,8 +182,6 @@ export interface SaveData {
   currentNodeId: string
   flags: Record<string, boolean>
   gameTime: number
-  playerX: number
-  playerY: number
   achievements?: string[]  // 已解锁成就
 }
 
