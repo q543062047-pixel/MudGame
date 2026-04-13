@@ -1,97 +1,63 @@
 <template>
   <aside class="char-panel">
-    <div class="panel-header">
-      <span class="char-name">{{ char.name }}</span>
-      <span class="char-title">{{ char.title }}</span>
+    <div class="panel-head">
+      <div class="char-name">{{ c.name }}</div>
+      <div class="char-title">{{ c.title }}</div>
     </div>
+    <div class="sep"/>
 
-    <div class="divider-thin" />
-
-    <!-- 气血内力 -->
-    <div class="stat-bars">
+    <div class="bars">
       <div class="bar-row">
-        <span class="bar-label">气血</span>
+        <span class="bl">气血</span>
         <div class="bar-track">
-          <div class="bar-fill hp" :style="{ width: hpPercent + '%' }" />
+          <div class="bar-fill hp" :style="{ width: hpPct+'%' }"/>
         </div>
-        <span class="bar-val">{{ char.hp }}/{{ char.maxHp }}</span>
+        <span class="bv">{{ c.hp }}<em>/{{ c.maxHp }}</em></span>
       </div>
       <div class="bar-row">
-        <span class="bar-label">内力</span>
+        <span class="bl">内力</span>
         <div class="bar-track">
-          <div class="bar-fill mp" :style="{ width: mpPercent + '%' }" />
+          <div class="bar-fill mp" :style="{ width: mpPct+'%' }"/>
         </div>
-        <span class="bar-val">{{ char.mp }}/{{ char.maxMp }}</span>
+        <span class="bv">{{ c.mp }}<em>/{{ c.maxMp }}</em></span>
       </div>
     </div>
+    <div class="sep"/>
 
-    <div class="divider-thin" />
-
-    <!-- 属性数值 -->
     <div class="attrs">
-      <div class="attr-row">
-        <span class="attr-label">攻击</span>
-        <span class="attr-val">{{ char.attack }}</span>
-        <span class="attr-label">防御</span>
-        <span class="attr-val">{{ char.defense }}</span>
-      </div>
-      <div class="attr-row">
-        <span class="attr-label">身法</span>
-        <span class="attr-val">{{ char.speed }}</span>
-        <span class="attr-label">声望</span>
-        <span class="attr-val reputation">{{ char.reputation }}</span>
-      </div>
-      <div class="attr-row">
-        <span class="attr-label">银两</span>
-        <span class="attr-val gold">{{ char.gold }} 两</span>
-      </div>
+      <div class="attr"><span class="ak">攻击</span><span class="av">{{ c.attack }}</span></div>
+      <div class="attr"><span class="ak">防御</span><span class="av">{{ c.defense }}</span></div>
+      <div class="attr"><span class="ak">身法</span><span class="av">{{ c.speed }}</span></div>
+      <div class="attr"><span class="ak">声望</span><span class="av jade">{{ c.reputation }}</span></div>
+      <div class="attr full"><span class="ak">银两</span><span class="av gold">{{ c.gold }} 两</span></div>
     </div>
+    <div class="sep"/>
 
-    <div class="divider-thin" />
-
-    <!-- 功法 -->
-    <div class="section-title">已修功法</div>
+    <div class="sec-title">功法</div>
     <div class="skill-list">
-      <div v-for="skill in char.skills" :key="skill.id" class="skill-item">
-        <span class="skill-name">{{ skill.name }}</span>
-        <span class="skill-cost" v-if="skill.mpCost > 0">{{ skill.mpCost }}内</span>
-        <span class="skill-cost free" v-else>无耗</span>
+      <div v-for="sk in c.skills" :key="sk.id" class="skill-item">
+        <span class="sk-name">{{ sk.name }}</span>
+        <span class="sk-cost" :class="{ free: sk.mpCost===0 }">{{ sk.mpCost>0 ? sk.mpCost+'内' : '无耗' }}</span>
       </div>
-      <div v-if="char.skills.length === 0" class="empty-hint">尚无功法</div>
+      <div v-if="!c.skills.length" class="empty">尚无功法</div>
     </div>
+    <div class="sep"/>
 
-    <div class="divider-thin" />
-
-    <!-- 背包 -->
-    <div class="section-title">
-      行囊
-      <span class="item-count">（{{ char.inventory.length }}）</span>
-    </div>
+    <div class="sec-title">行囊 <span class="cnt">（{{ c.inventory.length }}）</span></div>
     <div class="item-list">
-      <div
-        v-for="item in char.inventory"
-        :key="item.id"
-        class="item-row"
-        :title="item.description"
-      >
-        <span class="item-type-dot" :class="item.type" />
+      <div v-for="item in c.inventory" :key="item.id" class="item-row" :title="item.description">
+        <span class="item-dot" :class="item.type"/>
         <span class="item-name">{{ item.name }}</span>
-        <span class="item-qty" v-if="item.quantity > 1">×{{ item.quantity }}</span>
-        <button
-          v-if="item.type === 'medicine'"
-          class="use-btn"
-          @click="emit('useItem', item.id)"
-        >用</button>
+        <span class="item-qty" v-if="item.quantity>1">×{{ item.quantity }}</span>
+        <button v-if="item.type==='medicine'" class="use-btn" @click="emit('useItem',item.id)">用</button>
       </div>
-      <div v-if="char.inventory.length === 0" class="empty-hint">行囊空空</div>
+      <div v-if="!c.inventory.length" class="empty">行囊空空</div>
     </div>
+    <div class="sep"/>
 
-    <div class="divider-thin" />
-
-    <!-- 操作按钮 -->
-    <div class="action-btns">
-      <button class="action-btn" @click="emit('save')">存档</button>
-      <button class="action-btn danger" @click="emit('backHome')">回到主页</button>
+    <div class="actions">
+      <button class="act-btn" @click="emit('save')">存 档</button>
+      <button class="act-btn red" @click="emit('backHome')">返回主页</button>
     </div>
   </aside>
 </template>
@@ -99,171 +65,107 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { usePlayerStore } from '@/stores/player'
-
-const emit = defineEmits<{
-  useItem: [itemId: string]
-  save: []
-  backHome: []
-}>()
-
-const playerStore = usePlayerStore()
-const char = computed(() => playerStore.character)
-const hpPercent = computed(() => playerStore.hpPercent)
-const mpPercent = computed(() => playerStore.mpPercent)
+const emit = defineEmits<{ useItem:[id:string]; save:[]; backHome:[] }>()
+const ps = usePlayerStore()
+const c = computed(() => ps.character)
+const hpPct = computed(() => ps.hpPercent)
+const mpPct = computed(() => ps.mpPercent)
 </script>
 
 <style scoped>
 .char-panel {
-  width: 220px;
-  min-width: 220px;
+  width: 190px;
+  min-width: 190px;
   height: 100%;
-  background: var(--color-paper-dark);
-  border-right: 1px solid var(--color-border);
+  background: var(--bg-dark);
+  border-right: 1px solid #3a2810;
   display: flex;
   flex-direction: column;
-  gap: 0;
   overflow-y: auto;
-  padding: 16px 14px;
+  padding: 14px 12px;
   flex-shrink: 0;
 }
 
-.panel-header {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  padding-bottom: 10px;
-}
-
+.panel-head { padding-bottom: 10px; }
 .char-name {
   font-family: var(--font-title);
   font-size: 20px;
-  color: var(--color-ink);
+  color: var(--dark-text);
   letter-spacing: 3px;
+  line-height: 1.2;
 }
+.char-title { font-size: 11px; color: #c0392b; letter-spacing: 2px; margin-top: 3px; }
 
-.char-title {
-  font-size: 11px;
-  color: var(--color-vermilion);
-  letter-spacing: 2px;
-}
+.sep { height: 1px; background: #2a1c0a; margin: 8px 0; flex-shrink: 0; }
 
-.divider-thin {
-  height: 1px;
-  background: var(--color-border-light);
-  margin: 10px 0;
-}
-
-.stat-bars { display: flex; flex-direction: column; gap: 6px; }
+.bars { display: flex; flex-direction: column; gap: 7px; }
 .bar-row { display: flex; align-items: center; gap: 6px; }
-.bar-label { font-size: 11px; color: var(--color-ink-faint); width: 24px; letter-spacing: 1px; }
+.bl { font-size: 10px; color: var(--dark-text-muted); width: 24px; flex-shrink: 0; }
 .bar-track {
-  flex: 1;
-  height: 6px;
-  background: rgba(0,0,0,0.1);
-  border-radius: 3px;
-  overflow: hidden;
+  flex: 1; height: 7px;
+  background: rgba(255,255,255,0.07);
+  border-radius: 4px; overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.04);
 }
-.bar-fill {
-  height: 100%;
-  border-radius: 3px;
-  transition: width 0.4s ease;
-}
-.bar-fill.hp { background: linear-gradient(90deg, #c0392b, #e74c3c); }
-.bar-fill.mp { background: linear-gradient(90deg, #1a5276, #2980b9); }
-.bar-val { font-size: 10px; color: var(--color-ink-faint); width: 50px; text-align: right; }
+.bar-fill { height: 100%; border-radius: 4px; transition: width .4s; }
+/* 深色背景上的血条：用高饱和亮色，与轨道形成强对比 */
+.bar-fill.hp { background: linear-gradient(90deg, #c02010, #f04020); }
+.bar-fill.mp { background: linear-gradient(90deg, #0a3a70, #1a70d0); }
+.bv { font-size: 10px; color: var(--dark-text-sub); min-width: 38px; text-align: right; }
+.bv em { color: var(--dark-text-faint); font-style: normal; font-size: 9px; }
 
-.attrs { display: flex; flex-direction: column; gap: 5px; }
-.attr-row { display: flex; align-items: center; gap: 4px; }
-.attr-label { font-size: 11px; color: var(--color-ink-faint); width: 28px; }
-.attr-val { font-size: 13px; color: var(--color-ink-light); font-weight: 500; flex: 1; }
-.attr-val.reputation { color: var(--color-jade); }
-.attr-val.gold { color: var(--color-gold); }
+.attrs { display: flex; flex-wrap: wrap; gap: 4px 0; }
+.attr { display: flex; align-items: center; width: 50%; }
+.attr.full { width: 100%; }
+.ak { font-size: 10px; color: var(--dark-text-muted); width: 26px; }
+.av { font-size: 13px; color: var(--dark-text-sub); font-weight: 500; flex: 1; }
+.av.jade { color: #4ab870; }
+.av.gold { color: #d4a030; }
 
-.section-title {
-  font-size: 11px;
-  letter-spacing: 2px;
-  color: var(--color-ink-faint);
-  margin-bottom: 6px;
-}
-.item-count { font-size: 10px; }
+.sec-title { font-size: 10px; letter-spacing: 2px; color: var(--dark-text-faint); margin-bottom: 5px; }
+.cnt { font-size: 10px; }
 
-.skill-list, .item-list { display: flex; flex-direction: column; gap: 4px; }
+.skill-list, .item-list { display: flex; flex-direction: column; gap: 3px; }
 
 .skill-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-size: 12px;
-  padding: 3px 6px;
-  background: rgba(0,0,0,0.04);
-  border-radius: 3px;
+  display: flex; justify-content: space-between; align-items: center;
+  font-size: 11px; padding: 3px 6px;
+  background: rgba(255,255,255,0.04); border-radius: 2px;
 }
-.skill-name { color: var(--color-ink-light); }
-.skill-cost { font-size: 10px; color: #2980b9; }
-.skill-cost.free { color: var(--color-jade); }
+.sk-name { color: var(--dark-text-sub); }
+.sk-cost { font-size: 9px; color: #3a80c0; }
+.sk-cost.free { color: #4ab870; }
 
 .item-row {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 12px;
-  padding: 3px 4px;
-  border-radius: 3px;
-  transition: background 0.15s;
+  display: flex; align-items: center; gap: 5px; font-size: 11px;
+  padding: 3px 4px; border-radius: 2px; transition: background .12s;
 }
-.item-row:hover { background: rgba(0,0,0,0.05); }
-.item-name { color: var(--color-ink-light); flex: 1; }
-.item-qty { font-size: 10px; color: var(--color-ink-faint); }
-
-.item-type-dot {
-  width: 6px; height: 6px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-.item-type-dot.medicine { background: #c0392b; }
-.item-type-dot.weapon { background: var(--color-ink); }
-.item-type-dot.armor { background: var(--color-jade); }
-.item-type-dot.misc { background: var(--color-gold); }
-
+.item-row:hover { background: rgba(255,255,255,0.05); }
+.item-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+.item-dot.medicine { background: #c0392b; }
+.item-dot.weapon   { background: var(--dark-text-sub); }
+.item-dot.armor    { background: #4ab870; }
+.item-dot.misc     { background: #d4a030; }
+.item-name { color: var(--dark-text-sub); flex: 1; }
+.item-qty  { font-size: 9px; color: var(--dark-text-faint); }
 .use-btn {
-  font-size: 10px;
-  padding: 1px 5px;
-  background: rgba(192,57,43,0.1);
-  border: 1px solid rgba(192,57,43,0.3);
-  color: var(--color-vermilion);
-  cursor: pointer;
-  border-radius: 2px;
-  font-family: var(--font-serif);
-  transition: all 0.15s;
+  font-size: 9px; padding: 1px 5px;
+  background: rgba(192,57,43,.15); border: 1px solid rgba(192,57,43,.3);
+  color: #c0392b; cursor: pointer; border-radius: 2px;
+  font-family: var(--font-serif); transition: all .12s;
 }
-.use-btn:hover { background: rgba(192,57,43,0.2); }
+.use-btn:hover { background: rgba(192,57,43,.25); }
 
-.empty-hint {
-  font-size: 11px;
-  color: var(--color-ink-faint);
-  text-align: center;
-  padding: 4px 0;
-  letter-spacing: 1px;
-}
+.empty { font-size: 10px; color: var(--dark-text-faint); text-align: center; padding: 4px 0; }
 
-.action-btns {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  margin-top: auto;
-  padding-top: 4px;
+.actions { display: flex; flex-direction: column; gap: 5px; margin-top: auto; padding-top: 4px; }
+.act-btn {
+  padding: 7px 0; background: transparent;
+  border: 1px solid #3a2810;
+  font-family: var(--font-serif); font-size: 11px;
+  letter-spacing: 3px; color: var(--dark-text-muted); cursor: pointer;
+  transition: all .13s;
 }
-.action-btn {
-  padding: 7px 0;
-  background: transparent;
-  border: 1px solid var(--color-border-light);
-  font-family: var(--font-serif);
-  font-size: 12px;
-  letter-spacing: 3px;
-  color: var(--color-ink-faint);
-  cursor: pointer;
-  transition: all 0.15s;
-}
-.action-btn:hover { border-color: var(--color-border); color: var(--color-ink-light); }
-.action-btn.danger:hover { border-color: var(--color-vermilion); color: var(--color-vermilion); }
+.act-btn:hover { border-color: #5a3818; color: var(--dark-text-sub); }
+.act-btn.red:hover { border-color: #8b0000; color: #c0392b; }
 </style>

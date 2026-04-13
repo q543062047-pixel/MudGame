@@ -1,105 +1,86 @@
-/* 古风主题 CSS 变量 */
+/* 江湖志 · 古风主题 v3 — 宣纸色系 高对比度 */
+
 :root {
-  /* 色彩系统 */
-  --color-paper: #f5e6c8;          /* 宣纸色（主背景） */
-  --color-paper-dark: #e8d5a3;     /* 深宣纸色 */
-  --color-paper-light: #fdf6e3;    /* 浅宣纸色 */
-  --color-ink: #1a0a00;            /* 墨色（主文字） */
-  --color-ink-light: #3d2b1f;      /* 淡墨色 */
-  --color-ink-faint: #7a6352;      /* 轻墨色（次要文字） */
-  --color-vermilion: #c0392b;      /* 朱砂红（强调色） */
-  --color-vermilion-dark: #96281b; /* 深朱砂 */
-  --color-gold: #b8860b;           /* 金色（高光） */
-  --color-jade: #2e7d52;           /* 翠绿（特殊标记） */
-  --color-border: #c9a96e;         /* 边框色 */
-  --color-border-light: #dcc49a;   /* 浅边框 */
-  --color-shadow: rgba(90, 50, 10, 0.15);
+  /* ── 宣纸色系主背景 ── */
+  --bg-app:      #1c1008;   /* 深棕黑底 */
+  --bg-panel:    #f0e0c0;   /* 宣纸色 主面板 */
+  --bg-surface:  #e8d4a8;   /* 略深宣纸 */
+  --bg-elevated: #dcc898;   /* 卡片/输入 */
+  --bg-dark:     #2a1a08;   /* 深色侧边栏 */
+  --bg-dark-2:   #221408;   /* 更深 */
 
-  /* 版面 */
-  --panel-bg: rgba(245, 230, 200, 0.95);
-  --panel-bg-dark: rgba(220, 196, 154, 0.9);
+  /* ── 文字（高对比）── */
+  --text-primary:   #1a0a00;  /* 深墨，主文字 */
+  --text-secondary: #3d2010;  /* 次要文字 */
+  --text-muted:     #6b4020;  /* 三级 */
+  --text-faint:     #a07040;  /* 最淡 */
 
-  /* 字体 */
-  --font-serif: 'Noto Serif SC', 'Source Han Serif SC', 'SimSun', serif;
+  /* ── 浅色区文字（宣纸背景上） ── */
+  --text-on-paper:        #1a0a00;
+  --text-on-paper-sub:    #5a3010;
+  --text-on-paper-muted:  #9a6030;
+  --text-on-paper-faint:  #c49060;
+
+  /* ── 强调色 ── */
+  --accent-red:    #c0392b;
+  --accent-red-lt: #e05a3a;
+  --accent-gold:   #b8860b;
+  --accent-jade:   #2e7d52;
+  --accent-blue:   #1a5276;
+
+  /* ── 边框 ── */
+  --border-strong: #b8860b;   /* 金色主边框 */
+  --border-mid:    #c9a96e;
+  --border-faint:  #dcc49a;
+
+  /* ── 深色侧边栏文字 ── */
+  --dark-text:       #e8d4a8;
+  --dark-text-sub:   #c8a868;
+  --dark-text-muted: #7a5830;
+  --dark-text-faint: #4a3818;
+
+  /* ── 血条轨道 ── */
+  --bar-track-light: rgba(0,0,0,0.12);
+  --bar-track-dark:  rgba(255,255,255,0.10);
+
+  /* ── 战斗专属（深色系，与宣纸区分） ── */
+  --battle-bg:      #120608;
+  --battle-surface: #1e0c0c;
+  --battle-border:  #5a1a1a;
+  --battle-text:    #f0dcc0;
+  --battle-muted:   #8a5840;
+
+  /* ── 地图专属（深墨绿夜间风格）── */
+  --map-bg:     #0e1208;
+  --map-border: #1e2810;
+
+  /* ── 字体 ── */
+  --font-serif: 'Noto Serif SC', 'Source Han Serif CN', 'STSong', 'SimSun', serif;
   --font-title: 'Ma Shan Zheng', var(--font-serif);
 
-  /* 间距 */
-  --radius-sm: 4px;
-  --radius-md: 8px;
-  --radius-lg: 12px;
+  --r-sm: 3px;
+  --r-md: 6px;
 }
 
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-html, body, #app {
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body, #app { width: 100%; height: 100%; overflow: hidden; }
 
 body {
   font-family: var(--font-serif);
-  color: var(--color-ink);
-  background: #2c1a0a;
+  font-size: 15px;
+  color: var(--text-primary);
+  background: var(--bg-app);
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
-/* 卷轴展开动画 */
-@keyframes unrollDown {
-  from {
-    clip-path: inset(0 0 100% 0);
-    opacity: 0;
-  }
-  to {
-    clip-path: inset(0 0 0% 0);
-    opacity: 1;
-  }
-}
+::-webkit-scrollbar { width: 3px; }
+::-webkit-scrollbar-track { background: var(--bg-surface); }
+::-webkit-scrollbar-thumb { background: var(--border-mid); border-radius: 2px; }
+::selection { background: rgba(192,57,43,0.2); }
 
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(12px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes inkDrop {
-  from { opacity: 0; transform: scale(0.95); }
-  to { opacity: 1; transform: scale(1); }
-}
-
-@keyframes shimmer {
-  0% { background-position: -200% center; }
-  100% { background-position: 200% center; }
-}
-
-@keyframes breathe {
-  0%, 100% { opacity: 0.7; }
-  50% { opacity: 1; }
-}
-
-/* 滚动条样式 */
-::-webkit-scrollbar {
-  width: 4px;
-}
-::-webkit-scrollbar-track {
-  background: var(--color-paper-dark);
-}
-::-webkit-scrollbar-thumb {
-  background: var(--color-border);
-  border-radius: 2px;
-}
-
-/* 通用文字选中样式 */
-::selection {
-  background: rgba(192, 57, 43, 0.2);
-  color: var(--color-ink);
-}
+@keyframes breathe  { 0%,100%{opacity:.55} 50%{opacity:1} }
+@keyframes fadeInUp { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+@keyframes inkDrop  { from{opacity:0;transform:scale(.97)} to{opacity:1;transform:scale(1)} }
+@keyframes slideDown{ from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:translateY(0)} }
+@keyframes blink    { 0%,100%{opacity:1} 50%{opacity:0} }

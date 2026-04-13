@@ -24,7 +24,12 @@ export const usePlayerStore = defineStore('player', () => {
       (skillsData as Record<string, Skill>)['basic_strike'],
       (skillsData as Record<string, Skill>)['cloud_slash']
     ],
-    inventory: []
+    inventory: [],
+    equipment: {
+      weapon: null,
+      armor: null,
+      accessory: null
+    }
   })
 
   const hpPercent = computed(() => (character.value.hp / character.value.maxHp) * 100)
@@ -111,8 +116,58 @@ export const usePlayerStore = defineStore('player', () => {
         (skillsData as Record<string, Skill>)['basic_strike'],
         (skillsData as Record<string, Skill>)['cloud_slash']
       ],
-      inventory: []
+      inventory: [],
+      equipment: {
+        weapon: null,
+        armor: null,
+        accessory: null
+      }
     }
+  }
+
+  // 装备物品
+  function equipItem(item: Item): boolean {
+    if (item.type !== 'weapon' && item.type !== 'armor') return false
+    
+    const slot = item.type === 'weapon' ? 'weapon' : 'armor'
+    const oldItem = character.value.equipment[slot]
+    
+    // 卸下旧装备
+    if (oldItem) {
+      addItem(oldItem.id, 1)
+      if (oldItem.effect) {
+        if (oldItem.effect.attack) character.value.attack -= oldItem.effect.attack
+        if (oldItem.effect.defense) character.value.defense -= oldItem.effect.defense
+      }
+    }
+    
+    // 装备新物品
+    character.value.equipment[slot] = item
+    removeItem(item.id, 1)
+    
+    // 应用装备效果
+    if (item.effect) {
+      if (item.effect.attack) character.value.attack += item.effect.attack
+      if (item.effect.defense) character.value.defense += item.effect.defense
+    }
+    
+    return true
+  }
+
+  // 卸下装备
+  function unequipItem(slot: 'weapon' | 'armor' | 'accessory'): boolean {
+    const item = character.value.equipment[slot]
+    if (!item) return false
+    
+    // 移除装备效果
+    if (item.effect) {
+      if (item.effect.attack) character.value.attack -= item.effect.attack
+      if (item.effect.defense) character.value.defense -= item.effect.defense
+    }
+    
+    character.value.equipment[slot] = null
+    addItem(item.id, 1)
+    return true
   }
 
   return {
@@ -128,6 +183,8 @@ export const usePlayerStore = defineStore('player', () => {
     changeReputation,
     learnSkill,
     isDead,
-    reset
+    reset,
+    equipItem,
+    unequipItem
   }
 })

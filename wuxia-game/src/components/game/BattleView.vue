@@ -1,114 +1,79 @@
 <template>
-  <div class="battle-wrap">
-    <!-- 标题 -->
-    <div class="battle-header">
-      <div class="battle-title">⚔ 战斗</div>
-      <div class="battle-round">第 {{ gameStore.battleRound }} 回合</div>
+  <div class="battle">
+    <!-- 顶栏 -->
+    <div class="b-header">
+      <span class="b-title">⚔ 战斗</span>
+      <span class="b-round">第 {{ gs.battleRound }} 回合</span>
     </div>
 
-    <!-- 双方状态 -->
+    <!-- 双方 -->
     <div class="combatants">
-      <!-- 我方 -->
-      <div class="combatant player-side">
-        <div class="comb-name">{{ player.name }}</div>
-        <div class="comb-title">{{ player.title }}</div>
-        <div class="bar-row">
-          <span class="bar-label">气血</span>
-          <div class="bar-track">
-            <div class="bar-fill hp" :style="{ width: hpPct + '%' }" />
-          </div>
-          <span class="bar-num">{{ player.hp }}/{{ player.maxHp }}</span>
+      <div class="side">
+        <div class="s-name">{{ p.name }}</div>
+        <div class="s-sub">{{ p.title }}</div>
+        <div class="brow">
+          <span class="bl">气血</span>
+          <div class="btrack"><div class="bfill hp" :style="{ width: hpPct+'%' }"/></div>
+          <span class="bv hp-val">{{ p.hp }}<em>/{{ p.maxHp }}</em></span>
         </div>
-        <div class="bar-row">
-          <span class="bar-label">内力</span>
-          <div class="bar-track">
-            <div class="bar-fill mp" :style="{ width: mpPct + '%' }" />
-          </div>
-          <span class="bar-num">{{ player.mp }}/{{ player.maxMp }}</span>
+        <div class="brow">
+          <span class="bl">内力</span>
+          <div class="btrack"><div class="bfill mp" :style="{ width: mpPct+'%' }"/></div>
+          <span class="bv">{{ p.mp }}<em>/{{ p.maxMp }}</em></span>
         </div>
       </div>
 
-      <div class="vs-mark">VS</div>
+      <div class="vs">VS</div>
 
-      <!-- 敌方 -->
-      <div class="combatant enemy-side" v-if="enemy">
-        <div class="comb-name enemy-name">{{ enemy.name }}</div>
-        <div class="comb-title">{{ enemy.title }}</div>
-        <div class="bar-row">
-          <span class="bar-label">气血</span>
-          <div class="bar-track">
-            <div class="bar-fill hp enemy" :style="{ width: enemyHpPct + '%' }" />
-          </div>
-          <span class="bar-num">{{ enemy.hp }}/{{ enemy.maxHp }}</span>
+      <div class="side enemy-side" v-if="enemy">
+        <div class="s-name enemy-name">{{ enemy.name }}</div>
+        <div class="s-sub">{{ enemy.title }}</div>
+        <div class="brow">
+          <span class="bl">气血</span>
+          <div class="btrack"><div class="bfill ep" :style="{ width: epPct+'%' }"/></div>
+          <span class="bv ep-val">{{ enemy.hp }}<em>/{{ enemy.maxHp }}</em></span>
         </div>
-        <div class="comb-desc">{{ enemy.description }}</div>
+        <div class="enemy-desc">{{ enemy.description }}</div>
       </div>
     </div>
 
-    <div class="battle-divider" />
-
-    <!-- 战斗日志 -->
-    <div class="battle-log" ref="logEl">
-      <div
-        v-for="(log, i) in gameStore.battleLogs"
-        :key="i"
-        class="log-entry"
-        :class="log.actor === player.name ? 'player-log' : 'enemy-log'"
-      >
-        <span class="log-round">[{{ log.round }}]</span>
-        <span class="log-actor">{{ log.actor }}</span>
-        使出
-        <span class="log-skill">「{{ log.action }}」</span>
-        <span v-if="log.damage" class="log-dmg">造成 {{ log.damage }} 点伤害</span>
+    <!-- 日志 -->
+    <div class="log" ref="logEl">
+      <div v-for="(log,i) in gs.battleLogs" :key="i"
+        class="log-line" :class="log.actor===p.name ? 'lp':'le'">
+        <span class="lr">[{{ log.round }}]</span>
+        <span class="la">{{ log.actor }}</span>使出
+        <span class="lk">「{{ log.action }}」</span>
+        <span v-if="log.damage" class="ld">— 造成 <strong>{{ log.damage }}</strong> 伤害</span>
       </div>
-      <div v-if="gameStore.battleLogs.length === 0" class="log-empty">
-        战斗一触即发……
-      </div>
+      <div v-if="!gs.battleLogs.length" class="log-idle">战斗一触即发……</div>
     </div>
 
-    <div class="battle-divider" />
+    <div class="hsep"/>
 
-    <!-- 出招选择 -->
-    <div class="action-section">
-      <div class="action-label">选择出招</div>
-      <div class="skill-actions">
-        <button
-          v-for="skill in player.skills"
-          :key="skill.id"
-          class="skill-action-btn"
-          :class="{ disabled: skill.mpCost > player.mp }"
-          :disabled="skill.mpCost > player.mp"
-          @click="attack(skill)"
-        >
-          <div class="skill-action-name">{{ skill.name }}</div>
-          <div class="skill-action-info">
-            <span v-if="skill.mpCost > 0" class="mp-cost">{{ skill.mpCost }} 内力</span>
-            <span v-else class="mp-cost free">无消耗</span>
-          </div>
+    <!-- 出招 -->
+    <div class="actions">
+      <div class="act-title">出招</div>
+      <div class="skill-grid">
+        <button v-for="sk in p.skills" :key="sk.id"
+          class="sk-btn" :class="{ dim: sk.mpCost > p.mp }"
+          :disabled="sk.mpCost > p.mp"
+          @click="attack(sk)">
+          <span class="sk-n">{{ sk.name }}</span>
+          <span class="sk-m" :class="{ free: sk.mpCost===0 }">{{ sk.mpCost>0 ? sk.mpCost+'内':'无耗' }}</span>
         </button>
       </div>
-
-      <div class="other-actions">
-        <button class="other-btn medicine" @click="showItems = !showItems">
-          服药
-        </button>
-        <button class="other-btn flee" @click="tryFlee">
-          逃跑
-        </button>
+      <div class="misc">
+        <button class="misc-btn" @click="showMeds=!showMeds">服药</button>
+        <button class="misc-btn flee" @click="flee">逃跑</button>
       </div>
-
-      <!-- 药品快捷 -->
-      <Transition name="fade">
-        <div v-if="showItems" class="medicine-list">
-          <div
-            v-for="item in medicines"
-            :key="item.id"
-            class="med-item"
-            @click="useItem(item.id)"
-          >
-            {{ item.name }}（回复 {{ item.effect?.hp ?? item.effect?.mp }} 点）
+      <Transition name="meds">
+        <div v-if="showMeds" class="med-list">
+          <div v-for="item in meds" :key="item.id" class="med-item" @click="useMed(item.id)">
+            <span class="med-n">{{ item.name }}</span>
+            <span class="med-e">回复{{ item.effect?.hp ?? item.effect?.mp }}点</span>
           </div>
-          <div v-if="medicines.length === 0" class="med-empty">囊中无药</div>
+          <div v-if="!meds.length" class="med-none">囊中无药</div>
         </div>
       </Transition>
     </div>
@@ -122,247 +87,136 @@ import { usePlayerStore } from '@/stores/player'
 import { useBattle } from '@/composables/useBattle'
 import type { Skill } from '@/types'
 
-const gameStore = useGameStore()
-const playerStore = usePlayerStore()
+const gs = useGameStore()
+const ps = usePlayerStore()
 const { playerAttack, flee } = useBattle()
 
-const player = computed(() => playerStore.character)
-const enemy = computed(() => gameStore.currentEnemy)
-const hpPct = computed(() => playerStore.hpPercent)
-const mpPct = computed(() => playerStore.mpPercent)
-const enemyHpPct = computed(() => enemy.value ? (enemy.value.hp / enemy.value.maxHp) * 100 : 0)
-const medicines = computed(() => player.value.inventory.filter(i => i.type === 'medicine'))
+const p       = computed(() => ps.character)
+const enemy   = computed(() => gs.currentEnemy)
+const hpPct   = computed(() => ps.hpPercent)
+const mpPct   = computed(() => ps.mpPercent)
+const epPct   = computed(() => enemy.value ? (enemy.value.hp / enemy.value.maxHp)*100 : 0)
+const meds    = computed(() => p.value.inventory.filter(i => i.type==='medicine'))
+const showMeds = ref(false)
+const logEl   = ref<HTMLElement>()
 
-const showItems = ref(false)
-const logEl = ref<HTMLElement>()
-
-watch(
-  () => gameStore.battleLogs.length,
-  () => nextTick(() => {
-    if (logEl.value) logEl.value.scrollTop = logEl.value.scrollHeight
-  })
+watch(() => gs.battleLogs.length, () =>
+  nextTick(() => { if (logEl.value) logEl.value.scrollTop = logEl.value.scrollHeight })
 )
 
-function attack(skill: Skill) {
-  playerAttack(skill)
-}
-
-function tryFlee() {
-  flee()
-}
-
-function useItem(itemId: string) {
-  playerStore.useItem(itemId)
-  showItems.value = false
-}
+const attack = (sk: Skill) => playerAttack(sk)
+const useMed = (id: string) => { ps.useItem(id); showMeds.value = false }
 </script>
 
 <style scoped>
-.battle-wrap {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
+.battle {
+  flex: 1; display: flex; flex-direction: column;
   overflow: hidden;
-  background: #1a0502;
-  color: #e8d5b0;
+  background: var(--battle-bg);
+  color: var(--battle-text);
 }
 
-.battle-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 24px;
-  background: rgba(139, 0, 0, 0.3);
-  border-bottom: 1px solid rgba(180, 50, 30, 0.5);
+/* 顶栏 */
+.b-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 8px 20px;
+  background: #1a0808; border-bottom: 1px solid var(--battle-border);
+  flex-shrink: 0;
 }
+.b-title { font-family: var(--font-serif); font-size: 14px; letter-spacing: 4px; color: #e06040; }
+.b-round { font-size: 11px; color: #6a4030; letter-spacing: 2px;
+  background: rgba(255,255,255,.04); border: 1px solid #3a1a1a; padding: 2px 8px; }
 
-.battle-title {
-  font-family: var(--font-title);
-  font-size: 18px;
-  letter-spacing: 4px;
-  color: #e8d5b0;
-}
-
-.battle-round {
-  font-size: 12px;
-  letter-spacing: 2px;
-  color: rgba(232, 213, 176, 0.6);
-}
-
+/* 对阵 */
 .combatants {
-  display: flex;
-  align-items: flex-start;
-  gap: 16px;
-  padding: 20px 24px;
-  background: rgba(0,0,0,0.3);
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 14px 20px; background: #140606;
+  border-bottom: 1px solid var(--battle-border); flex-shrink: 0;
 }
+.side { flex:1; display:flex; flex-direction:column; gap:5px; }
 
-.combatant {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
+.s-name { font-size: 15px; font-weight: 500; letter-spacing: 2px; color: #f0d8c0; }
+.enemy-name { color: #f09070; }
+.s-sub { font-size: 10px; color: #6a4030; letter-spacing: 2px; }
+.enemy-desc { font-size: 10px; color: #5a3828; letter-spacing: 1px; line-height: 1.5; margin-top: 2px; }
 
-.comb-name {
-  font-family: var(--font-serif);
-  font-size: 16px;
-  letter-spacing: 3px;
-  color: #e8d5b0;
+.brow { display:flex; align-items:center; gap:5px; }
+.bl   { font-size:10px; color:#4a2818; width:22px; flex-shrink:0; }
+.btrack {
+  flex:1; height:8px;
+  /* 深色战斗背景：轨道需明显可见，用半透明白 */
+  background: rgba(255,255,255,0.12);
+  border-radius:4px; overflow:hidden;
+  /* 加轮廓强化可见性 */
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06);
 }
-.enemy-name { color: #e88080; }
-.comb-title {
-  font-size: 11px;
-  color: rgba(232, 213, 176, 0.5);
-  letter-spacing: 2px;
-}
-.comb-desc {
-  font-size: 11px;
-  color: rgba(232, 213, 176, 0.4);
-  line-height: 1.6;
-  letter-spacing: 1px;
-  margin-top: 4px;
-}
+.bfill { height:100%; border-radius:4px; transition:width .4s; }
+/* 玩家HP：亮绿→黄，与暗红背景形成色相+亮度双重对比 */
+.bfill.hp { background: linear-gradient(90deg, #1a8040, #60d040); }
+/* 玩家MP：亮蓝 */
+.bfill.mp { background: linear-gradient(90deg, #0a4090, #2080e0); }
+/* 敌人HP：橙红 */
+.bfill.ep { background: linear-gradient(90deg, #802010, #e04020); }
+.bv      { font-size:10px; color:#6a4030; min-width:40px; text-align:right; }
+.hp-val  { color:#80d060; }
+.ep-val  { color:#e06040; }
+.bv em   { color:#3a1c10; font-style:normal; font-size:9px; }
 
-.vs-mark {
-  font-family: var(--font-title);
-  font-size: 20px;
-  color: #c0392b;
-  align-self: center;
-  padding: 0 8px;
-  text-shadow: 0 0 20px rgba(192,57,43,0.5);
-}
+.vs { display:flex; align-items:center; padding-top:16px; }
+.vs { font-family:var(--font-title); font-size:16px; color:#6a1808; padding:0 8px;
+      text-shadow:0 0 10px rgba(180,40,10,.4); }
 
-.bar-row { display: flex; align-items: center; gap: 6px; }
-.bar-label { font-size: 10px; color: rgba(232,213,176,0.5); width: 22px; }
-.bar-track {
-  flex: 1;
-  height: 5px;
-  background: rgba(255,255,255,0.1);
-  border-radius: 3px;
-  overflow: hidden;
+/* 日志 */
+.log {
+  flex:1; overflow-y:auto; padding:8px 20px;
+  display:flex; flex-direction:column; gap:2px;
+  min-height:50px; max-height:140px; background:#0e0404;
 }
-.bar-fill { height: 100%; border-radius: 3px; transition: width 0.4s; }
-.bar-fill.hp { background: linear-gradient(90deg, #8b0000, #c0392b); }
-.bar-fill.hp.enemy { background: linear-gradient(90deg, #4a0000, #8b2020); }
-.bar-fill.mp { background: linear-gradient(90deg, #0a2040, #1a5276); }
-.bar-num { font-size: 10px; color: rgba(232,213,176,0.5); width: 52px; text-align: right; }
+.log-line { font-size:13px; line-height:1.7; letter-spacing:1px; animation:fadeInUp .18s ease both; }
+.lp { color:#c8a888; }
+.le { color:#c07060; }
+.lr { color:#2a1010; margin-right:4px; }
+.la { font-weight:600; margin-right:2px; }
+.lk { color:#d4a040; }
+.ld { margin-left:4px; }
+.ld strong { color:#f07050; }
+.log-idle { font-size:11px; color:#2a1010; letter-spacing:2px; text-align:center; padding:6px 0; }
 
-.battle-divider {
-  height: 1px;
-  background: rgba(180, 130, 60, 0.2);
-}
+.hsep { height:1px; background:var(--battle-border); flex-shrink:0; }
 
-.battle-log {
-  flex: 1;
-  overflow-y: auto;
-  padding: 12px 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  min-height: 80px;
-  max-height: 180px;
-}
+/* 出招区 */
+.actions { padding:10px 20px 14px; background:#120404; flex-shrink:0; }
+.act-title { font-size:10px; letter-spacing:3px; color:#3a1818; margin-bottom:7px; }
 
-.log-entry {
-  font-size: 13px;
-  line-height: 1.8;
-  letter-spacing: 1px;
-  color: rgba(232, 213, 176, 0.7);
-  animation: fadeInUp 0.2s ease both;
-}
-.log-entry.player-log { color: #e8d5b0; }
-.log-entry.enemy-log { color: #e89090; }
-.log-round { color: rgba(232,213,176,0.3); margin-right: 4px; }
-.log-actor { font-weight: 500; margin-right: 2px; }
-.log-skill { color: #e8c060; }
-.log-dmg { margin-left: 4px; }
-.log-empty { font-size: 12px; color: rgba(232,213,176,0.3); letter-spacing: 2px; text-align: center; padding: 8px 0; }
+.skill-grid { display:flex; flex-wrap:wrap; gap:5px; margin-bottom:8px; }
 
-.action-section {
-  padding: 14px 24px 20px;
-  background: rgba(0,0,0,0.2);
+.sk-btn {
+  padding:6px 12px; background:#1e0a0a; border:1px solid #4a1818;
+  color:#e0c0a0; cursor:pointer; font-family:var(--font-serif); font-size:12px;
+  letter-spacing:1px; transition:all .12s; display:flex; flex-direction:column; gap:1px;
 }
+.sk-btn:hover:not(.dim) { background:#2e1010; border-color:#7a2828; }
+.sk-btn.dim { opacity:.3; cursor:not-allowed; }
+.sk-n { color:#e0c0a0; }
+.sk-m { font-size:9px; color:#3a80c0; }
+.sk-m.free { color:#3a9060; }
 
-.action-label {
-  font-size: 11px;
-  letter-spacing: 3px;
-  color: rgba(232,213,176,0.4);
-  margin-bottom: 10px;
+.misc { display:flex; gap:6px; }
+.misc-btn {
+  padding:5px 16px; background:transparent; border:1px solid #2a1010;
+  color:#5a3020; cursor:pointer; font-family:var(--font-serif); font-size:11px;
+  letter-spacing:2px; transition:all .12s;
 }
+.misc-btn:hover { border-color:#5a2020; color:#9a5040; }
+.misc-btn.flee:hover { border-color:#b8860b; color:#d4a030; }
 
-.skill-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 10px;
-}
+.med-list { margin-top:6px; background:#160606; border:1px solid #3a1010; padding:6px 10px; display:flex; flex-direction:column; gap:4px; }
+.med-item { display:flex; justify-content:space-between; font-size:11px; color:#b09080; cursor:pointer; padding:2px 4px; transition:color .12s; }
+.med-item:hover { color:#e0c0a0; }
+.med-e { font-size:10px; color:#507040; }
+.med-none { font-size:10px; color:#3a1818; text-align:center; }
 
-.skill-action-btn {
-  padding: 8px 16px;
-  background: rgba(139, 0, 0, 0.2);
-  border: 1px solid rgba(180, 50, 30, 0.4);
-  color: #e8d5b0;
-  cursor: pointer;
-  font-family: var(--font-serif);
-  font-size: 13px;
-  letter-spacing: 1px;
-  transition: all 0.15s;
-  text-align: left;
-}
-.skill-action-btn:hover {
-  background: rgba(139,0,0,0.4);
-  border-color: rgba(192,57,43,0.8);
-}
-.skill-action-btn.disabled {
-  opacity: 0.35;
-  cursor: not-allowed;
-}
-.skill-action-name { margin-bottom: 2px; }
-.skill-action-info { }
-.mp-cost { font-size: 10px; color: rgba(41, 128, 185, 0.8); }
-.mp-cost.free { color: rgba(46, 125, 82, 0.8); }
-
-.other-actions {
-  display: flex;
-  gap: 8px;
-}
-
-.other-btn {
-  padding: 7px 20px;
-  background: transparent;
-  border: 1px solid rgba(232, 213, 176, 0.2);
-  color: rgba(232, 213, 176, 0.5);
-  cursor: pointer;
-  font-family: var(--font-serif);
-  font-size: 12px;
-  letter-spacing: 2px;
-  transition: all 0.15s;
-}
-.other-btn:hover { border-color: rgba(232,213,176,0.5); color: #e8d5b0; }
-.other-btn.flee:hover { border-color: #e8c060; color: #e8c060; }
-
-.medicine-list {
-  margin-top: 8px;
-  background: rgba(0,0,0,0.3);
-  border: 1px solid rgba(180,130,60,0.3);
-  padding: 8px 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.med-item {
-  font-size: 12px;
-  color: rgba(232,213,176,0.7);
-  cursor: pointer;
-  padding: 4px 6px;
-  transition: color 0.15s;
-  letter-spacing: 1px;
-}
-.med-item:hover { color: #e8d5b0; }
-.med-empty { font-size: 12px; color: rgba(232,213,176,0.3); text-align: center; }
-
-.fade-enter-active, .fade-leave-active { transition: opacity 0.2s; }
-.fade-enter-from, .fade-leave-to { opacity: 0; }
+.meds-enter-active { animation:slideDown .18s ease both; }
+.meds-leave-active { transition:opacity .14s; }
+.meds-leave-to { opacity:0; }
 </style>

@@ -1,33 +1,13 @@
 <template>
-  <div class="text-output" ref="outputEl" @click="handleClick">
-    <!-- 氛围标记 -->
-    <div class="atmosphere-bar" :class="atmosphere" />
-
-    <!-- 历史文字（已读段落） -->
-    <div class="history-section">
-      <TransitionGroup name="paragraph" tag="div">
-        <div
-          v-for="(para, i) in historyParagraphs"
-          :key="`h-${i}`"
-          class="paragraph history"
-        >{{ para }}</div>
-      </TransitionGroup>
-    </div>
-
-    <!-- 当前正在打字的段落 -->
-    <div v-if="displayedText" class="paragraph current" ref="currentEl">
-      {{ displayedText }}<span v-if="isTyping" class="cursor">▎</span>
-    </div>
-
-    <!-- 打字完成提示 -->
-    <div v-if="!isTyping && paragraphQueue.length > 0" class="next-hint" @click.stop="nextParagraph">
-      ── 点击继续 ──
-    </div>
-
-    <!-- 空状态 -->
-    <div v-if="!displayedText && historyParagraphs.length === 0" class="idle-hint">
-      正在载入故事……
-    </div>
+  <div class="text-output" ref="el" @click="handleClick">
+    <div class="atm-line" :class="atmosphere"/>
+    <TransitionGroup name="para" tag="div" class="history">
+      <p v-for="(p,i) in history" :key="i" class="para old">{{ p }}</p>
+    </TransitionGroup>
+    <p v-if="displayed" class="para current">
+      {{ displayed }}<span v-if="typing" class="cursor"/>
+    </p>
+    <div v-if="!typing && queue.length>0" class="hint" @click.stop="next">▸ 点击继续</div>
   </div>
 </template>
 
@@ -35,147 +15,89 @@
 import { ref, watch, nextTick } from 'vue'
 import { useTypewriter } from '@/composables/useTypewriter'
 
-const props = defineProps<{
-  paragraphs: string[]
-  atmosphere?: string
-}>()
+const props = defineProps<{ paragraphs: string[]; atmosphere?: string }>()
+const emit = defineEmits<{ done:[] }>()
 
-const emit = defineEmits<{
-  done: []
-}>()
+const el = ref<HTMLElement>()
+const history = ref<string[]>([])
+const queue = ref<string[]>([])
+const { displayedText: displayed, isTyping: typing, typeText, skipTyping, reset } = useTypewriter()
 
-const outputEl = ref<HTMLElement>()
-const currentEl = ref<HTMLElement>()
-const historyParagraphs = ref<string[]>([])
-const paragraphQueue = ref<string[]>([])
+watch(() => props.paragraphs, async (p) => {
+  reset(); history.value = []; queue.value = [...p]
+  await nextTick(); next()
+}, { immediate: true })
 
-const { displayedText, isTyping, typeText, skipTyping, reset } = useTypewriter()
-
-// 当 paragraphs 变化时重置并开始打字
-watch(
-  () => props.paragraphs,
-  async (newParagraphs) => {
-    reset()
-    historyParagraphs.value = []
-    paragraphQueue.value = [...newParagraphs]
-    await nextTick()
-    await nextParagraph()
-  },
-  { immediate: true }
-)
-
-async function nextParagraph() {
-  if (paragraphQueue.value.length === 0) {
-    emit('done')
-    return
-  }
-  const para = paragraphQueue.value.shift()!
-  await typeText(para, 35)
-  // 完成后压入历史，清空当前
-  if (paragraphQueue.value.length > 0) {
-    historyParagraphs.value.push(para)
-    displayedText.value = ''
-    scrollToBottom()
+async function next() {
+  if (!queue.value.length) { emit('done'); return }
+  const para = queue.value.shift()!
+  await typeText(para, 30)
+  if (queue.value.length) {
+    history.value.push(para); displayed.value = ''
+    nextTick(() => { if (el.value) el.value.scrollTop = el.value.scrollHeight })
   } else {
-    scrollToBottom()
+    nextTick(() => { if (el.value) el.value.scrollTop = el.value.scrollHeight })
     emit('done')
   }
 }
 
 function handleClick() {
-  if (isTyping.value) {
-    // 跳过打字
-    const fullText = paragraphQueue.value.length > 0
-      ? props.paragraphs[historyParagraphs.value.length]
-      : props.paragraphs[props.paragraphs.length - 1]
-    skipTyping(fullText)
-  } else if (paragraphQueue.value.length > 0) {
-    nextParagraph()
-  }
-}
-
-function scrollToBottom() {
-  nextTick(() => {
-    if (outputEl.value) {
-      outputEl.value.scrollTop = outputEl.value.scrollHeight
-    }
-  })
+  if (typing.value) {
+    skipTyping(props.paragraphs[history.value.length] ?? '')
+    if (!queue.value.length) emit('done')
+  } else if (queue.value.length) next()
 }
 </script>
 
 <style scoped>
 .text-output {
-  flex: 1;
-  overflow-y: auto;
-  padding: 24px 32px 16px;
+  flex: 1; overflow-y: auto;
+  padding: 14px 22px 10px;
+  display: flex; flex-direction: column;
+  background: var(--bg-panel);
   cursor: default;
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: 0;
 }
 
-.atmosphere-bar {
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 3px;
-  transition: background 1s ease;
+.atm-line {
+  height: 2px; margin: -14px -22px 12px; flex-shrink: 0;
+  transition: background .8s;
 }
-.atmosphere-bar.peaceful { background: linear-gradient(90deg, transparent, var(--color-jade), transparent); }
-.atmosphere-bar.tense { background: linear-gradient(90deg, transparent, var(--color-vermilion), transparent); }
-.atmosphere-bar.battle { background: linear-gradient(90deg, transparent, #8b0000, transparent); animation: breathe 0.8s ease-in-out infinite; }
-.atmosphere-bar.mystery { background: linear-gradient(90deg, transparent, var(--color-gold), transparent); }
-.atmosphere-bar.normal { background: linear-gradient(90deg, transparent, var(--color-border), transparent); }
+.atm-line.peaceful { background: linear-gradient(90deg,transparent,#2e7d52 50%,transparent); }
+.atm-line.tense    { background: linear-gradient(90deg,transparent,#c0392b 50%,transparent); }
+.atm-line.battle   { background: linear-gradient(90deg,transparent,#8b0000 50%,transparent); animation: breathe .7s infinite; }
+.atm-line.mystery  { background: linear-gradient(90deg,transparent,#b8860b 50%,transparent); }
+.atm-line.normal   { background: linear-gradient(90deg,transparent,#c9a96e 50%,transparent); }
 
-.history-section { display: flex; flex-direction: column; }
+.history { display: flex; flex-direction: column; }
 
-.paragraph {
+.para {
   font-family: var(--font-serif);
-  font-size: 16px;
-  line-height: 2.2;
-  letter-spacing: 2px;
-  color: var(--color-ink-light);
-  margin-bottom: 4px;
-  user-select: none;
+  font-size: 15px; font-weight: 400;
+  line-height: 2.1; letter-spacing: 2px;
+  color: var(--text-on-paper);
+  margin-bottom: 2px;
 }
-
-.paragraph.history {
-  color: var(--color-ink-faint);
-  opacity: 0.7;
-}
-
-.paragraph.current {
-  color: var(--color-ink);
-  animation: fadeInUp 0.3s ease both;
-}
+.para.old     { color: var(--text-on-paper-muted); }
+.para.current { color: var(--text-on-paper); animation: fadeInUp .22s ease both; }
 
 .cursor {
   display: inline-block;
-  color: var(--color-vermilion);
-  animation: breathe 0.7s ease-in-out infinite;
-  margin-left: 1px;
+  width: 1px; height: 1em;
+  background: var(--accent-red);
+  vertical-align: text-bottom;
+  margin-left: 2px;
+  animation: blink .9s step-end infinite;
 }
 
-.next-hint {
-  font-size: 12px;
-  letter-spacing: 4px;
-  color: var(--color-ink-faint);
-  text-align: center;
-  padding: 12px 0 4px;
-  animation: breathe 2s ease-in-out infinite;
-  cursor: pointer;
+.hint {
+  font-size: 11px; letter-spacing: 3px;
+  color: var(--text-on-paper-faint);
+  text-align: center; padding: 8px 0 2px;
+  animation: breathe 2.2s ease-in-out infinite;
+  cursor: pointer; transition: color .15s;
 }
-.next-hint:hover { color: var(--color-vermilion); }
+.hint:hover { color: var(--accent-red); }
 
-.idle-hint {
-  font-size: 13px;
-  color: var(--color-ink-faint);
-  letter-spacing: 3px;
-  text-align: center;
-  padding-top: 40px;
-}
-
-/* 历史段落入场动画 */
-.paragraph-enter-active { transition: all 0.3s ease; }
-.paragraph-enter-from { opacity: 0; transform: translateY(6px); }
+.para-enter-active { transition: all .22s ease; }
+.para-enter-from   { opacity: 0; transform: translateY(4px); }
 </style>

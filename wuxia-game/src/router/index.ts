@@ -1,12 +1,12 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
 import HomeView from '@/views/HomeView.vue'
-import GameView from '@/views/GameView.vue'
+import GameViewNode from '@/views/GameViewNode.vue'
 
 const router = createRouter({
   history: createWebHashHistory(),
   routes: [
     { path: '/', component: HomeView },
-    { path: '/game', component: GameView }
+    { path: '/game', component: GameViewNode }  // 使用节点式地图
   ]
 })
 

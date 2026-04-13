@@ -1,5 +1,6 @@
 import { usePlayerStore } from '@/stores/player'
 import { useGameStore } from '@/stores/game'
+import { useWorldStore } from '@/stores/world'
 import type { SaveData } from '@/types'
 
 const SAVE_KEY = 'wuxia_saves'
@@ -18,6 +19,7 @@ export function useSave() {
   }
 
   function save(slotName?: string) {
+    const worldStore = useWorldStore()
     const saves = getSaves()
     const saveData: SaveData = {
       id: Date.now().toString(),
@@ -26,7 +28,9 @@ export function useSave() {
       character: { ...playerStore.character },
       currentNodeId: gameStore.currentNodeId,
       flags: { ...gameStore.flags },
-      gameTime: gameStore.gameDay
+      gameTime: gameStore.gameDay,
+      playerX: worldStore.playerX,
+      playerY: worldStore.playerY
     }
     // Keep max 5 saves
     saves.unshift(saveData)
@@ -36,6 +40,7 @@ export function useSave() {
   }
 
   function load(saveId: string): boolean {
+    const worldStore = useWorldStore()
     const saves = getSaves()
     const saveData = saves.find(s => s.id === saveId)
     if (!saveData) return false
@@ -54,6 +59,12 @@ export function useSave() {
     gameStore.flags = saveData.flags
     gameStore.gameDay = saveData.gameTime
     gameStore.setPhase('story')
+
+    // 恢复地图位置
+    worldStore.reset()
+    worldStore.map.playerX = saveData.playerX ?? 2
+    worldStore.map.playerY = saveData.playerY ?? 2
+
     return true
   }
 

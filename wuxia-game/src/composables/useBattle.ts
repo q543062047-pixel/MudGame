@@ -27,7 +27,9 @@ export function useBattle() {
     const base = atk + skillDmg
     const reduced = Math.max(1, base - def)
     const variance = 0.8 + Math.random() * 0.4
-    return Math.floor(reduced * variance)
+    const damage = Math.floor(reduced * variance)
+    // 添加伤害上下限保护，避免异常值
+    return Math.max(1, Math.min(damage, 9999))
   }
 
   function resolveAfterBattle(winOrLose: 'win' | 'lose') {
@@ -95,7 +97,9 @@ export function useBattle() {
     })
 
     if (playerStore.isDead()) {
+      // 濒死状态：保留1点生命值，避免完全死亡
       playerStore.changeHp(1)
+      gameStore.addLog('你身受重伤，勉强保住性命...')
       resolveAfterBattle('lose')
     }
   }

@@ -1,5 +1,6 @@
 import { useGameStore } from '@/stores/game'
 import { usePlayerStore } from '@/stores/player'
+import { useWorldStore } from '@/stores/world'
 import type { ScenarioNode, Choice, NodeEffect } from '@/types'
 import chapter1 from '@/data/scenarios/chapter1.json'
 import enemiesData from '@/data/enemies.json'
@@ -97,17 +98,17 @@ export function useGameEngine() {
     // Apply node-level effects
     if (node.effects) applyEffects(node.effects)
 
+    gameStore.setNode(nodeId)
+
     // Check if this triggers a battle
     if (node.battle) {
       const enemy = (enemiesData as Record<string, Enemy>)[node.battle.enemyId]
       if (enemy) {
-        gameStore.setNode(nodeId)
+        // 直接进入战斗，不显示过场
         gameStore.startBattle({ ...enemy })
         return
       }
     }
-
-    gameStore.setNode(nodeId)
 
     // If auto-advance
     if (node.autoNext && !node.choices) {
@@ -118,8 +119,10 @@ export function useGameEngine() {
   function startGame() {
     playerStore.reset()
     gameStore.reset()
+    useWorldStore().reset()
     gameStore.setPhase('story')
-    goToNode('start')
+    // 只设置节点，不触发剧情
+    gameStore.setNode('start')
   }
 
   return {
