@@ -1,0 +1,20 @@
+{
+  "id": "daily_training",
+  "name": "每日修炼",
+  "type": "event",
+  "content": {
+    "event": {
+      "description": "你在练武场进行日常修炼。",
+      "effects": [
+        {
+          "type": "changeHp",
+          "value": 5
+        },
+        {
+          "type": "changeMp",
+          "value": 5
+        }
+      ]
+    }
+  }
+}

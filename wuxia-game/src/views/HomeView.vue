@@ -24,7 +24,7 @@
         <div v-if="showSaves" class="panel">
           <div class="saves-title">选择存档</div>
           <div v-if="!saves.length" class="no-save">暂无存档</div>
-          <div v-for="s in saves" :key="s.id" class="save-row" @click="doLoad(s.id)">
+          <div v-for="s in saves" :key="s.id" class="save-row" @click="doLoad">
             <span>{{ s.name }}</span><span class="save-date">{{ fmt(s.timestamp) }}</span>
           </div>
           <button class="close-btn" @click="showSaves=false">关闭</button>
@@ -37,29 +37,55 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useGameEngine } from '@/composables/useGameEngine'
 import { useSave } from '@/composables/useSave'
 
 const router = useRouter()
 const { startGame } = useGameEngine()
-const { getSaves, load } = useSave()
+const { load, getSaveInfo, hasSave } = useSave()
 const showAbout = ref(false)
 const showSaves = ref(false)
-const saves = ref(getSaves())
-const hasSaves = computed(() => saves.value.length > 0)
 
-function startNew() { startGame(); router.push('/game') }
+const saveInfo = computed(() => getSaveInfo())
+const hasSaves = computed(() => hasSave())
+
+// 转换为数组格式以兼容现有模板
+const saves = computed(() => {
+  const info = saveInfo.value
+  return info ? [{
+    id: info.id,
+    name: info.name,
+    timestamp: info.timestamp
+  }] : []
+})
+
+function startNew() {
+  startGame()
+  router.push('/game')
+}
+
 function openSaves() {
   if (!hasSaves.value) return
-  saves.value = getSaves(); showSaves.value = true; showAbout.value = false
+  showSaves.value = true
+  showAbout.value = false
 }
-function doLoad(id: string) { if (load(id)) router.push('/game') }
+
+function doLoad() {
+  if (load()) {
+    router.push('/game')
+  }
+}
+
 function fmt(ts: number) {
-  return new Date(ts).toLocaleString('zh-CN', { month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit' })
+  return new Date(ts).toLocaleString('zh-CN', {
+    month:'2-digit',
+    day:'2-digit',
+    hour:'2-digit',
+    minute:'2-digit'
+  })
 }
-onMounted(() => saves.value = getSaves())
 </script>
 
 <style scoped>

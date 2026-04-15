@@ -1,0 +1,26 @@
+{
+  "id": "join_qingyun_sect",
+  "name": "拜入青云派",
+  "type": "dialog",
+  "content": {
+    "dialog": {
+      "text": [
+        "清风道长微笑着看着你。",
+        "「云舟，你天资聪颖，心性纯良，正是我青云派需要的弟子。」",
+        "「今日起，你便是青云派的正式弟子了。」",
+        "「这是青云派的入门心法，你要好好修炼。」"
+      ],
+      "speaker": "清风道长",
+      "effects": [
+        {
+          "type": "joinSect",
+          "sectId": "qingyun"
+        },
+        {
+          "type": "setFlag",
+          "flag": "joined_qingyun_sect"
+        }
+      ]
+    }
+  }
+}

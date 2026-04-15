@@ -1,0 +1,21 @@
+{
+  "id": "qingyun_gate_intro",
+  "name": "初到山门",
+  "type": "dialog",
+  "content": {
+    "dialog": {
+      "text": [
+        "你来到青云山门前。",
+        "守门弟子向你点头致意。",
+        "「师兄，掌门正在大殿等你。」"
+      ],
+      "speaker": "守门弟子",
+      "effects": [
+        {
+          "type": "setFlag",
+          "flag": "qingyun_gate_intro_completed"
+        }
+      ]
+    }
+  }
+}

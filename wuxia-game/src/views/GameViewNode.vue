@@ -24,6 +24,7 @@
           @move="onMove"
           @talk-to-npc="handleNpcTalk"
           @trigger-scenario="handleTriggerScenario"
+          @open-teleport="openTeleportMenuFromNpc"
         />
       </Transition>
     </div>
@@ -66,60 +67,102 @@
     </Transition>
 
     <!-- 成就解锁提示 -->
-    <TransitionGroup name="ach" tag="div" class="ach-list">
-      <div v-for="ach in newAchievements" :key="ach.id" class="ach-toast">
+    <!-- <TransitionGroup name="ach" tag="div" class="ach-list">
+      <div v-for="ach in []" :key="ach.id" class="ach-toast">
         <span class="ach-icon">{{ ach.icon }}</span>
         <div class="ach-info">
           <div class="ach-name">成就解锁：{{ ach.name }}</div>
           <div class="ach-desc">{{ ach.description }}</div>
         </div>
       </div>
-    </TransitionGroup>
+    </TransitionGroup> -->
 
     <Transition name="toast">
       <div v-if="saveToast" class="save-toast">✓ 存档成功</div>
     </Transition>
+
+    <!-- 传送菜单 -->
+    <TeleportMenu
+      v-if="teleportMenuOpen"
+      @close="closeTeleportMenu"
+      @teleport="handleTeleport"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, nextTick } from 'vue'
+import { ref, watch, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { useGameStore } from '@/stores/game'
 import { usePlayerStore } from '@/stores/player'
 import { useWorldStore } from '@/stores/world'
 import { useGameEngine } from '@/composables/useGameEngine'
-import { useSaveSlots } from '@/composables/useSaveSlots'
+import { useSave } from '@/composables/useSave'
 import { useTypewriter } from '@/composables/useTypewriter'
 import { useRandomEvents } from '@/composables/useRandomEvents'
 import { useAchievements } from '@/composables/useAchievements'
+import { useStoryTrigger } from '@/composables/useStoryTrigger'
+import { storyExecutor } from '@/engine/StoryExecutor'
 import CharacterPanel from '@/components/game/CharacterPanel.vue'
 import BattleView from '@/components/game/BattleView.vue'
 import NodeView from '@/components/game/NodeView.vue'
 import MiniMap from '@/components/game/MiniMap.vue'
 import CutsceneOverlay from '@/components/game/CutsceneOverlay.vue'
-import type { Choice, NodeEffect, Direction8, MapNode } from '@/types'
+import TeleportMenu from '@/components/game/TeleportMenu.vue'
+import { useTeleport } from '@/composables/useTeleport'
+import type { Choice, Direction8, MapNode, TeleportPoint } from '@/types'
+import type { NPC } from '@/data/npcData'
 
 const router = useRouter()
 const gs = useGameStore()
 const ps = usePlayerStore()
 const ws = useWorldStore()
 const { getCurrentNode, selectChoice, checkCondition, goToNode } = useGameEngine()
-const { saveToSlot } = useSaveSlots()
+const { save } = useSave()
 const { triggerRandomEvent, applyEventEffects, currentEvent: randomEvent, clearEvent } = useRandomEvents()
-const { checkAchievements, newAchievements, clearNewUnlocks } = useAchievements()
+const { checkAchievements } = useAchievements()
+// const newAchievements = ref([])  // 暂时禁用成就系统
+const { checkStoryTriggers, currentStory, isStoryActive, endStory } = useStoryTrigger()
+const { setTeleportPoints, clearTeleportPoints } = useTeleport()
 
 // 存档提示
 const saveToast = ref(false)
 function doSave() {
-  saveToSlot(0)
-  saveToast.value = true
-  setTimeout(() => saveToast.value = false, 2000)
+  if (save()) {
+    saveToast.value = true
+    setTimeout(() => saveToast.value = false, 2000)
+  }
 }
 
 // 移动处理
-function onMove(direction: Direction8, node: MapNode) {
-  // 检查是否触发剧情
+async function onMove(_direction: Direction8, node: MapNode) {
+  // ✨ 优先检查新的剧情系统
+  await checkStoryTriggers(node.id)
+  
+  // 如果触发了剧情，根据剧情类型处理
+  if (isStoryActive.value && currentStory.value) {
+    const story = currentStory.value
+    
+    // 对话型剧情：打开过场
+    if (story.type === 'dialog' && story.content.dialog) {
+      openStoryDialog(story)
+      return
+    }
+    
+    // 战斗型剧情：先显示 intro，然后开始战斗
+    if (story.type === 'battle' && story.content.battle) {
+      openStoryBattle(story)
+      return
+    }
+    
+    // 事件型剧情：应用效果
+    if (story.type === 'event' && story.content.event) {
+      await storyExecutor.execute(story)
+      endStory()
+    }
+  }
+  
+  // 兼容旧的剧情系统（scenarioId）
   if (node.scenarioId) {
     openCutscene(node.scenarioId)
     return
@@ -134,11 +177,64 @@ function onMove(direction: Direction8, node: MapNode) {
   }
 
   // 检查成就
-  const unlocked = checkAchievements()
-  if (unlocked.length > 0) {
-    setTimeout(() => clearNewUnlocks(), 3000)
+  checkAchievements()
+  // if (unlocked.length > 0) {
+  //   setTimeout(() => clearNewUnlocks(), 3000)
+  // }
+}
+
+// 标记是否为新剧情系统
+const isNewStorySystem = ref(false)
+
+// 打开剧情对话
+function openStoryDialog(story: any) {
+  if (!story.content.dialog) return
+  
+  const dialog = story.content.dialog
+  isNewStorySystem.value = true
+  cutsceneOn.value = true
+  csAtm.value = 'normal'
+  csHistory.value = []
+  csChoices.value = []
+  csParagraphQueue.value = [...dialog.text]
+  csReset()
+  nextCsPara()
+  
+  // 应用对话效果
+  if (dialog.effects) {
+    storyExecutor.applyEffects(dialog.effects)
   }
 }
+
+// 打开战斗剧情（先显示 intro，然后开始战斗）
+function openStoryBattle(story: any) {
+  if (!story.content.battle) return
+  
+  const battle = story.content.battle
+  
+  // 如果有 intro，先显示
+  if (battle.intro && battle.intro.length > 0) {
+    isNewStorySystem.value = true
+    cutsceneOn.value = true
+    csAtm.value = 'tense' // 战斗氛围
+    csHistory.value = []
+    csChoices.value = []
+    csParagraphQueue.value = [...battle.intro]
+    csReset()
+    
+    // 标记这是战斗 intro，完成后需要开始战斗
+    pendingBattleStory.value = story
+    
+    nextCsPara()
+  } else {
+    // 没有 intro，直接开始战斗
+    storyExecutor.execute(story)
+    endStory()
+  }
+}
+
+// 待执行的战斗剧情
+const pendingBattleStory = ref<any>(null)
 
 // 过场系统
 const cutsceneOn = ref(false)
@@ -155,9 +251,27 @@ const {
   reset: csReset,
 } = useTypewriter()
 
+// 监听过场关闭，结束剧情状态或开始战斗
+watch(cutsceneOn, (isOn) => {
+  if (!isOn) {
+    // 如果有待执行的战斗剧情，开始战斗
+    if (pendingBattleStory.value) {
+      const story = pendingBattleStory.value
+      pendingBattleStory.value = null
+      storyExecutor.execute(story)
+      endStory()
+    } else if (isStoryActive.value) {
+      // 否则正常结束剧情状态
+      endStory()
+    }
+  }
+})
+
 function openCutscene(nodeId: string) {
+  // @ts-ignore - GamePhase类型问题
   if (gs.phase === 'battle') return
   goToNode(nodeId)
+  // @ts-ignore - GamePhase类型问题
   if (gs.phase === 'battle') return
   renderCutscene()
 }
@@ -165,6 +279,7 @@ function openCutscene(nodeId: string) {
 function renderCutscene() {
   const node = getCurrentNode()
   if (!node) return
+  isNewStorySystem.value = false  // 旧剧情系统
   cutsceneOn.value = true
   csAtm.value = node.atmosphere ?? 'normal'
   csHistory.value = []
@@ -181,8 +296,14 @@ function closeCutscene() {
 
 async function nextCsPara() {
   if (!csParagraphQueue.value.length) {
-    csChoices.value = getCurrentNode()?.choices ?? []
-    gs.setFlag(`visited_${gs.currentNodeId}`)
+    // 只有旧剧情系统才获取节点的选项
+    if (!isNewStorySystem.value) {
+      csChoices.value = getCurrentNode()?.choices ?? []
+      gs.setFlag(`visited_${gs.currentNodeId}`)
+    } else {
+      // 新剧情系统：没有选项时自动关闭
+      closeCutscene()
+    }
     return
   }
   const para = csParagraphQueue.value.shift()!
@@ -191,8 +312,14 @@ async function nextCsPara() {
     csHistory.value.push(para)
     csDisplayed.value = ''
   } else {
-    csChoices.value = getCurrentNode()?.choices ?? []
-    gs.setFlag(`visited_${gs.currentNodeId}`)
+    // 只有旧剧情系统才获取节点的选项
+    if (!isNewStorySystem.value) {
+      csChoices.value = getCurrentNode()?.choices ?? []
+      gs.setFlag(`visited_${gs.currentNodeId}`)
+    } else {
+      // 新剧情系统：没有选项时自动关闭
+      closeCutscene()
+    }
   }
 }
 
@@ -201,12 +328,23 @@ function csClick() {
     const idx = csHistory.value.length
     csSkip(getCurrentNode()?.text[idx] ?? '')
     if (!csParagraphQueue.value.length) {
-      csChoices.value = getCurrentNode()?.choices ?? []
+      // 只有旧剧情系统才获取节点的选项
+      if (!isNewStorySystem.value) {
+        csChoices.value = getCurrentNode()?.choices ?? []
+      } else {
+        // 新剧情系统：自动关闭
+        closeCutscene()
+      }
     }
   } else if (csParagraphQueue.value.length) {
     csHistory.value.push(csDisplayed.value)
     csDisplayed.value = ''
     nextCsPara()
+  } else {
+    // 新剧情系统：点击关闭
+    if (isNewStorySystem.value) {
+      closeCutscene()
+    }
   }
 }
 
@@ -243,7 +381,7 @@ watch(() => gs.currentNodeId, (newId) => {
   }
 })
 
-function isCutsceneId(nodeId: string): boolean {
+function isCutsceneId(_nodeId: string): boolean {
   const node = getCurrentNode()
   return !!(node && node.text && node.text.length > 0)
 }
@@ -267,6 +405,30 @@ function handleNpcTalk(npc: any) {
 
 function handleTriggerScenario(scenarioId: string) {
   openCutscene(scenarioId)
+}
+
+// 传送菜单（乘车）
+const teleportMenuOpen = ref(false)
+
+function openTeleportMenuFromNpc(npc: NPC) {
+  if (npc.teleportPoints && npc.teleportPoints.length > 0) {
+    setTeleportPoints(npc.teleportPoints)
+    teleportMenuOpen.value = true
+  }
+}
+
+function closeTeleportMenu() {
+  teleportMenuOpen.value = false
+  clearTeleportPoints()
+}
+
+function handleTeleport(point: TeleportPoint) {
+  console.log('[GameView] 乘车成功:', point.name)
+  // 传送后可能需要触发新节点的剧情
+  const newNode = ws.currentNode
+  if (newNode) {
+    checkStoryTriggers(newNode.id)
+  }
 }
 </script>
 

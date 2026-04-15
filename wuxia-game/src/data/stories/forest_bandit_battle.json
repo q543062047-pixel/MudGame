@@ -1,0 +1,41 @@
+{
+  "id": "forest_bandit_battle",
+  "name": "密林遇袭",
+  "type": "battle",
+  "content": {
+    "battle": {
+      "enemyId": "bandit",
+      "canFlee": true,
+      "intro": [
+        "你走进密林深处。",
+        "突然，三名山贼从树后跳出！",
+        "「此路是我开，此树是我栽，要想从此过，留下买路财！」"
+      ],
+      "onWin": [
+        {
+          "type": "addItem",
+          "target": "healing_pill",
+          "value": 2
+        },
+        {
+          "type": "changeGold",
+          "value": 50
+        },
+        {
+          "type": "changeReputation",
+          "value": 10
+        },
+        {
+          "type": "setFlag",
+          "flag": "defeated_forest_bandits"
+        }
+      ],
+      "onLose": [
+        {
+          "type": "changeGold",
+          "value": -20
+        }
+      ]
+    }
+  }
+}

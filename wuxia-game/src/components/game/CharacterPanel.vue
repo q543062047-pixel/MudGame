@@ -3,6 +3,9 @@
     <div class="panel-head">
       <div class="char-name">{{ c.name }}</div>
       <div class="char-title">{{ c.title }}</div>
+      <div class="char-sect" :style="{ color: currentSect?.color }">
+        {{ currentSect?.name || '无门无派' }}
+      </div>
     </div>
     <div class="sep"/>
 
@@ -65,8 +68,12 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { usePlayerStore } from '@/stores/player'
+import { useSect } from '@/composables/useSect'
+
 const emit = defineEmits<{ useItem:[id:string]; save:[]; backHome:[] }>()
 const ps = usePlayerStore()
+const { currentSect } = useSect()
+
 const c = computed(() => ps.character)
 const hpPct = computed(() => ps.hpPercent)
 const mpPct = computed(() => ps.mpPercent)
@@ -95,6 +102,12 @@ const mpPct = computed(() => ps.mpPercent)
   line-height: 1.2;
 }
 .char-title { font-size: 11px; color: #c0392b; letter-spacing: 2px; margin-top: 3px; }
+.char-sect {
+  font-size: 10px;
+  letter-spacing: 1px;
+  margin-top: 2px;
+  opacity: 0.8;
+}
 
 .sep { height: 1px; background: #2a1c0a; margin: 8px 0; flex-shrink: 0; }
 

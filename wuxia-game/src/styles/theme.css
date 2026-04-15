@@ -50,9 +50,9 @@
   --battle-text:    #f0dcc0;
   --battle-muted:   #8a5840;
 
-  /* ── 地图专属（深墨绿夜间风格）── */
-  --map-bg:     #0e1208;
-  --map-border: #1e2810;
+  /* ── 地图专属（古风宣纸夜间风格）── */
+  --map-bg:     #1c1008;
+  --map-border: #3a2810;
 
   /* ── 字体 ── */
   --font-serif: 'Noto Serif SC', 'Source Han Serif CN', 'STSong', 'SimSun', serif;

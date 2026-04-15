@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import type { BattleLog, Enemy, ScenarioNode } from '@/types'
+import type { BattleLog, Enemy } from '@/types'
 
 export type GamePhase = 'menu' | 'story' | 'battle' | 'inventory' | 'gameover'
 
@@ -8,6 +8,7 @@ export const useGameStore = defineStore('game', () => {
   const phase = ref<GamePhase>('menu')
   const currentNodeId = ref<string>('start')
   const flags = ref<Record<string, boolean>>({})
+  const counters = ref<Record<string, number>>({})  // 计数器（用于剧情触发次数等）
   const gameLog = ref<string[]>([])   // 全局事件日志
   const gameDay = ref<number>(1)
 
@@ -25,12 +26,26 @@ export const useGameStore = defineStore('game', () => {
     currentNodeId.value = id
   }
 
-  function setFlag(flag: string) {
-    flags.value[flag] = true
+  function setFlag(flag: string, value: boolean = true) {
+    flags.value[flag] = value
   }
 
   function hasFlag(flag: string) {
     return !!flags.value[flag]
+  }
+
+  function getCounter(key: string): number {
+    return counters.value[key] || 0
+  }
+
+  function setCounter(key: string, value: number) {
+    counters.value[key] = value
+  }
+
+  function incrementCounter(key: string): number {
+    const current = counters.value[key] || 0
+    counters.value[key] = current + 1
+    return counters.value[key]
   }
 
   function addLog(msg: string) {
@@ -79,6 +94,7 @@ export const useGameStore = defineStore('game', () => {
     phase.value = 'menu'
     currentNodeId.value = 'start'
     flags.value = {}
+    counters.value = {}
     gameLog.value = []
     gameDay.value = 1
     inBattle.value = false
@@ -91,6 +107,7 @@ export const useGameStore = defineStore('game', () => {
     phase,
     currentNodeId,
     flags,
+    counters,
     gameLog,
     gameDay,
     inBattle,
@@ -101,6 +118,9 @@ export const useGameStore = defineStore('game', () => {
     setNode,
     setFlag,
     hasFlag,
+    getCounter,
+    setCounter,
+    incrementCounter,
     addLog,
     startBattle,
     addBattleLog,

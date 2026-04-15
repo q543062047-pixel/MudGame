@@ -3,75 +3,118 @@ import { useGameStore } from '@/stores/game'
 import { useWorldStore } from '@/stores/world'
 import type { SaveData } from '@/types'
 
-const SAVE_KEY = 'wuxia_saves'
+const SAVE_KEY = 'wuxia_game_save'
 
+/**
+ * 游戏存档系统
+ * 提供保存、读取、查询存档功能
+ */
 export function useSave() {
   const playerStore = usePlayerStore()
   const gameStore = useGameStore()
+  const worldStore = useWorldStore()
 
-  function getSaves(): SaveData[] {
+  /**
+   * 保存游戏
+   */
+  function save(): boolean {
     try {
-      const raw = localStorage.getItem(SAVE_KEY)
-      return raw ? JSON.parse(raw) : []
+      console.log('=== 开始保存游戏 ===')
+      console.log('当前节点ID:', worldStore.currentNodeId)
+      
+      const saveData: SaveData = {
+        id: `save_${Date.now()}`,
+        name: `存档 ${new Date().toLocaleString('zh-CN')}`,
+        timestamp: Date.now(),
+        character: JSON.parse(JSON.stringify(playerStore.character)),
+        currentNodeId: worldStore.currentNodeId,
+        flags: JSON.parse(JSON.stringify(gameStore.flags)),
+        counters: JSON.parse(JSON.stringify(gameStore.counters)),
+        gameTime: gameStore.gameDay
+      }
+      
+      localStorage.setItem(SAVE_KEY, JSON.stringify(saveData))
+      console.log('保存成功！', saveData)
+      return true
+    } catch (e) {
+      console.error('保存失败:', e)
+      return false
+    }
+  }
+
+  /**
+   * 读取游戏
+   */
+  function load(): boolean {
+    try {
+      console.log('=== 开始读取游戏 ===')
+      const json = localStorage.getItem(SAVE_KEY)
+      if (!json) {
+        console.log('没有找到存档')
+        return false
+      }
+
+      const saveData: SaveData = JSON.parse(json)
+      console.log('读取到存档:', saveData)
+
+      // 恢复角色数据
+      playerStore.character = JSON.parse(JSON.stringify(saveData.character))
+      
+      // 恢复游戏状态
+      gameStore.flags = JSON.parse(JSON.stringify(saveData.flags))
+      gameStore.counters = JSON.parse(JSON.stringify(saveData.counters || {}))
+      gameStore.gameDay = saveData.gameTime
+      gameStore.setPhase('story')
+      
+      // 恢复地图位置 - 直接设置，不使用 teleportTo（它要求节点已访问）
+      worldStore.reset()
+      // 直接修改 graph 的 currentNodeId
+      worldStore.graph.currentNodeId = saveData.currentNodeId
+      // 标记为已访问
+      worldStore.graph.visitedNodes.add(saveData.currentNodeId)
+      
+      console.log('读档完成，当前节点:', worldStore.currentNodeId)
+      return true
+    } catch (e) {
+      console.error('读档失败:', e)
+      return false
+    }
+  }
+
+  /**
+   * 获取存档信息（用于显示）
+   */
+  function getSaveInfo(): SaveData | null {
+    try {
+      const json = localStorage.getItem(SAVE_KEY)
+      if (!json) return null
+      return JSON.parse(json)
     } catch {
-      return []
+      return null
     }
   }
 
-  function save(slotName?: string) {
-    const worldStore = useWorldStore()
-    const saves = getSaves()
-    const saveData: SaveData = {
-      id: Date.now().toString(),
-      name: slotName || `存档 ${new Date().toLocaleString('zh-CN')}`,
-      timestamp: Date.now(),
-      character: { ...playerStore.character },
-      currentNodeId: gameStore.currentNodeId,
-      flags: { ...gameStore.flags },
-      gameTime: gameStore.gameDay,
-      playerX: worldStore.playerX,
-      playerY: worldStore.playerY
-    }
-    // Keep max 5 saves
-    saves.unshift(saveData)
-    if (saves.length > 5) saves.pop()
-    localStorage.setItem(SAVE_KEY, JSON.stringify(saves))
-    return saveData
+  /**
+   * 检查是否有存档
+   */
+  function hasSave(): boolean {
+    return !!localStorage.getItem(SAVE_KEY)
   }
 
-  function load(saveId: string): boolean {
-    const worldStore = useWorldStore()
-    const saves = getSaves()
-    const saveData = saves.find(s => s.id === saveId)
-    if (!saveData) return false
-
-    playerStore.character.name = saveData.character.name
-    playerStore.character.hp = saveData.character.hp
-    playerStore.character.maxHp = saveData.character.maxHp
-    playerStore.character.mp = saveData.character.mp
-    playerStore.character.maxMp = saveData.character.maxMp
-    playerStore.character.gold = saveData.character.gold
-    playerStore.character.reputation = saveData.character.reputation
-    playerStore.character.inventory = saveData.character.inventory
-    playerStore.character.skills = saveData.character.skills
-
-    gameStore.currentNodeId = saveData.currentNodeId
-    gameStore.flags = saveData.flags
-    gameStore.gameDay = saveData.gameTime
-    gameStore.setPhase('story')
-
-    // 恢复地图位置
-    worldStore.reset()
-    worldStore.map.playerX = saveData.playerX ?? 2
-    worldStore.map.playerY = saveData.playerY ?? 2
-
-    return true
+  /**
+   * 删除存档
+   */
+  function deleteSave(): void {
+    localStorage.removeItem(SAVE_KEY)
   }
 
-  function deleteSave(saveId: string) {
-    const saves = getSaves().filter(s => s.id !== saveId)
-    localStorage.setItem(SAVE_KEY, JSON.stringify(saves))
+  return {
+    save,
+    load,
+    getSaveInfo,
+    hasSave,
+    deleteSave
   }
-
-  return { getSaves, save, load, deleteSave }
 }
+
+// Made with Bob

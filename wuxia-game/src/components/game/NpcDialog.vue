@@ -27,6 +27,13 @@
             >
               【与之深谈】
             </button>
+            <button
+              v-if="npc.teleportPoints && npc.teleportPoints.length > 0"
+              class="nd-btn travel"
+              @click="$emit('open-travel')"
+            >
+              【乘车】
+            </button>
           </div>
         </div>
       </div>
@@ -48,7 +55,8 @@ const props = defineProps<Props>()
 defineEmits<{
   close: []
   next: []
-  'trigger-scenario': []
+  'trigger-scenario': [scenarioId: string]
+  'open-travel': []
 }>()
 
 const currentDialogue = computed(() => {
@@ -203,6 +211,18 @@ const isLastDialogue = computed(() => {
   background: rgba(200, 160, 100, 0.3);
   border-color: #e0b584;
   box-shadow: 0 4px 12px rgba(212, 165, 116, 0.4);
+}
+
+.nd-btn.travel {
+  border-color: #74a5d4;
+  color: #a0d0f0;
+  background: rgba(80, 140, 180, 0.2);
+}
+
+.nd-btn.travel:hover {
+  background: rgba(100, 160, 200, 0.3);
+  border-color: #84b5e0;
+  box-shadow: 0 4px 12px rgba(116, 165, 212, 0.4);
 }
 
 /* 弹窗动画 */

@@ -22,7 +22,7 @@
           :key="n.id"
           :id="n.id"
           :name="n.name"
-          :icon="n.icon"
+          :icon="(n.icon || '?') as string"
           :x="n.x"
           :y="n.y"
           :is-current="n.id === currentNodeId"

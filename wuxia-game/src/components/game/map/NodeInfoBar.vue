@@ -31,7 +31,7 @@
 <script setup lang="ts">
 /**
  * NodeInfoBar - 节点信息栏组件
- * 
+ *
  * 显示当前节点的详细信息和NPC列表
  */
 import type { MapNode } from '@/types'

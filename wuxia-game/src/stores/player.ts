@@ -7,8 +7,8 @@ import skillsData from '@/data/skills.json'
 export const usePlayerStore = defineStore('player', () => {
   const character = ref<Character>({
     name: '叶云舟',
-    title: '青云门弟子',
-    sect: '青云门',
+    title: '无名小卒',
+    sect: 'none',  // 初始无门派
     hp: 100,
     maxHp: 100,
     mp: 80,
@@ -16,13 +16,12 @@ export const usePlayerStore = defineStore('player', () => {
     attack: 18,
     defense: 10,
     speed: 15,
-    reputation: 0,
+    reputation: 0,  // 门派声望
     gold: 50,
     level: 1,
     exp: 0,
     skills: [
-      (skillsData as Record<string, Skill>)['basic_strike'],
-      (skillsData as Record<string, Skill>)['cloud_slash']
+      (skillsData as Record<string, Skill>)['basic_strike']
     ],
     inventory: [],
     equipment: {

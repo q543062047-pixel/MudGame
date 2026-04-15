@@ -39,7 +39,7 @@ withDefaults(defineProps<Props>(), {
 
 <style scoped>
 .connection-line {
-  stroke: #3a4a2a;
+  stroke: #6a5a3a;
   stroke-width: 2;
   stroke-dasharray: 5, 5;
   opacity: 0;
@@ -49,7 +49,7 @@ withDefaults(defineProps<Props>(), {
 }
 
 .connection-line.active {
-  stroke: #7a9a5a;
+  stroke: #b8a070;
   stroke-width: 3;
   stroke-dasharray: none;
   animation: fadeInActive 0.5s ease-out forwards;

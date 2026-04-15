@@ -1,0 +1,20 @@
+{
+  "id": "follow_up_story",
+  "name": "后续剧情",
+  "type": "dialog",
+  "content": {
+    "dialog": {
+      "text": [
+        "你已经完成了初次访问。",
+        "现在可以触发这个后续剧情了。"
+      ],
+      "speaker": "系统提示",
+      "effects": [
+        {
+          "type": "setFlag",
+          "flag": "follow_up_completed"
+        }
+      ]
+    }
+  }
+}

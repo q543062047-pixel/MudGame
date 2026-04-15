@@ -136,9 +136,9 @@ function getTargetName(dir: Direction8): string {
   return info?.targetNode?.name || ''
 }
 
-function move(dir: Direction8) {
-  if (hasDirection(dir)) {
-    emit('move', dir)
+function move(dir: string) {
+  if (hasDirection(dir as Direction8)) {
+    emit('move', dir as Direction8)
   }
 }
 </script>

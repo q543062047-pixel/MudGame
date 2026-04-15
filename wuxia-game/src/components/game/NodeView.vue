@@ -16,6 +16,7 @@
       :node="node"
       :npcs="currentNpcs"
       @npc-click="handleNpcClick"
+      @teleport-click="handleTeleportClick"
     />
 
     <!-- NPC对话框 -->
@@ -26,6 +27,7 @@
       @close="closeNpc"
       @next="nextDialogue"
       @trigger-scenario="triggerNpcScenario"
+      @open-travel="openTravelMenu"
     />
     
     <!-- 消息弹窗 -->
@@ -52,6 +54,7 @@ const emit = defineEmits<{
   move: [direction: string, node: MapNode]
   talkToNpc: [npc: NPC]
   triggerScenario: [scenarioId: string]
+  openTeleport: [npc: NPC]
 }>()
 
 const ws = useWorldStore()
@@ -174,6 +177,23 @@ function triggerNpcScenario(scenarioId: string) {
   closeNpc()
   emit('triggerScenario', scenarioId)
 }
+
+function handleTeleportClick() {
+  // 这个方法现在不再使用，因为传送通过NPC触发
+  // emit('openTeleport')
+}
+
+function openTravelMenu() {
+  if (activeNpc.value) {
+    const npc = activeNpc.value
+    // 先关闭 NPC 对话框
+    closeNpc()
+    // 延迟打开乘车菜单，确保对话框关闭动画完成
+    setTimeout(() => {
+      emit('openTeleport', npc)
+    }, 100)
+  }
+}
 </script>
 
 <style scoped>
@@ -181,7 +201,7 @@ function triggerNpcScenario(scenarioId: string) {
   display: flex;
   flex-direction: column;
   height: 100%;
-  background: linear-gradient(135deg, #0e1208 0%, #1a1e12 100%);
+  background: linear-gradient(135deg, #1c1008 0%, #2a1e10 100%);
   overflow: hidden;
 }
 </style>

@@ -72,14 +72,14 @@ function handleClick() {
 }
 
 .node-group.visited .node-circle {
-  fill: rgba(80, 100, 50, 0.6);
-  stroke: #7a9a5a;
+  fill: rgba(160, 120, 70, 0.6);
+  stroke: #c9a96e;
   stroke-width: 2;
 }
 
 .node-group.connected:not(.current):not(.visited) .node-circle {
-  fill: rgba(60, 70, 40, 0.4);
-  stroke: #5a6a4a;
+  fill: rgba(100, 70, 40, 0.4);
+  stroke: #8a6a4a;
   stroke-width: 2;
   stroke-dasharray: 4, 4;
 }
@@ -90,8 +90,8 @@ function handleClick() {
 }
 
 .node-group.connected:hover:not(.current) .node-circle {
-  fill: rgba(100, 120, 60, 0.8);
-  stroke: #a0c080;
+  fill: rgba(180, 140, 80, 0.8);
+  stroke: #d4b080;
   stroke-width: 3;
   transform: scale(1.1);
 }
@@ -111,18 +111,18 @@ function handleClick() {
 }
 
 .node-group.current .node-icon-text {
-  fill: #1a1e12;
+  fill: #2a1a08;
   font-size: 28px;
 }
 
 .node-name-text {
   font-family: var(--font-serif);
   font-size: 12px;
-  fill: #b0c080;
+  fill: #d4b080;
   text-anchor: middle;
   pointer-events: none;
   paint-order: stroke fill;
-  stroke: #0a0f08;
+  stroke: #1a0f08;
   stroke-width: 4px;
   stroke-linejoin: round;
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.8));
@@ -132,7 +132,7 @@ function handleClick() {
   fill: #e0d0a0;
   font-size: 14px;
   font-weight: 700;
-  stroke: #0a0f08;
+  stroke: #1a0f08;
   stroke-width: 5px;
 }
 

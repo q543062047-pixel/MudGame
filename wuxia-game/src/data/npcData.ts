@@ -1,11 +1,15 @@
+import type { TeleportPoint } from '@/types'
+
 // NPC 数据
 export interface NPC {
   id: string
   name: string
   title: string
   icon: string          // 显示在地图上的汉字/符号
+  avatar?: string       // 头像表情符号
   dialogues: string[]   // 对话列表（循环）
   scenarioId?: string   // 触发剧情节点
+  teleportPoints?: TeleportPoint[]  // 可提供的乘车服务
 }
 
 export const NPC_DATA: Record<string, NPC[]> = {
@@ -111,6 +115,86 @@ export const NPC_DATA: Record<string, NPC[]> = {
         '「客官，要不要看看我的货？有刀有药，什么都有。」',
         '「苍梧城最近乱，我都不敢久留，打算绕道走。」',
       ]
+    }
+  ],
+  // 官道驿站 (7,7) - 马夫
+  '7,7': [
+    {
+      id: 'station_keeper',
+      name: '驿站掌柜',
+      title: '驿站管事',
+      icon: '驿',
+      dialogues: [
+        '「客官，要住店还是雇车？」',
+        '「我们这儿的马车快得很，半日就能到苍梧城。」',
+        '「最近山道不太平，雇车比走路安全多了。」',
+      ],
+      teleportPoints: [
+        {
+          id: 'tp_station_to_city',
+          name: '雇车前往苍梧城',
+          targetNodeId: 'city_square',
+          description: '雇一辆马车前往苍梧城广场',
+          cost: 20,
+          icon: '🐎',
+        },
+      ],
+    }
+  ],
+  // 城中广场 (7,5) - 车夫
+  '7,5': [
+    {
+      id: 'city_coachman',
+      name: '王车夫',
+      title: '赶车的',
+      icon: '车',
+      dialogues: [
+        '「客官要去哪儿？我这马车跑得快！」',
+        '「去青云派？那可远着呢，不过我熟路。」',
+        '「城里最近不太平，出城要小心。」',
+      ],
+      teleportPoints: [
+        {
+          id: 'tp_city_to_qingyun',
+          name: '雇车前往青云山门',
+          targetNodeId: 'qingyun_gate',
+          description: '雇一辆马车前往青云派山门',
+          cost: 50,
+          icon: '🐎',
+        },
+        {
+          id: 'tp_city_to_station',
+          name: '雇车前往驿站',
+          targetNodeId: 'road_station',
+          description: '雇一辆马车前往官道驿站',
+          cost: 20,
+          icon: '🐎',
+        },
+      ],
+    }
+  ],
+  // 青云山门 (5,5) - 门派弟子
+  '5,5': [
+    {
+      id: 'qingyun_gatekeeper',
+      name: '守山弟子',
+      title: '青云派弟子',
+      icon: '守',
+      dialogues: [
+        '「师兄/师姐，要下山吗？」',
+        '「山下有马车可以雇，直达苍梧城。」',
+        '「掌门说了，弟子下山办事可以用门派的马车。」',
+      ],
+      teleportPoints: [
+        {
+          id: 'tp_qingyun_to_city',
+          name: '乘坐门派马车前往苍梧城',
+          targetNodeId: 'city_square',
+          description: '乘坐青云派的马车前往苍梧城广场',
+          cost: 30,
+          icon: '🐎',
+        },
+      ],
     }
   ],
 }
